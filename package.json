@@ -1,0 +1,29 @@
+{
+  "name": "@fabiomcosta/mvjs",
+  "version": "1.0.0",
+  "description": "Moves JavaScript files and updates their reference on other modules inside the project.",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "npm run flow && npm run unit",
+    "flow": "flow",
+    "unit": "jest",
+    "prepublishOnly": "npm run build",
+    "build": "babel src/ -d lib/",
+    "build:watch": "babel --watch src/ -d lib/"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "eslint": "^4.16.0",
+    "flow-bin": "^0.63.1",
+    "jest": "^22.1.4",
+    "jscodeshift": "^0.4.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.38",
+    "@babel/core": "^7.0.0-beta.38",
+    "@babel/preset-env": "^7.0.0-beta.38",
+    "@babel/preset-flow": "^7.0.0-beta.38"
+  }
+}
