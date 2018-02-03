@@ -6,24 +6,39 @@
   "scripts": {
     "test": "npm run flow && npm run unit",
     "flow": "flow",
+    "flow-typed": "flow-typed",
     "unit": "jest",
     "prepublishOnly": "npm run build",
     "build": "babel src/ -d lib/",
-    "build:watch": "babel --watch src/ -d lib/"
+    "build:watch": "nodemon --watch src/ --exec babel -- --watch src/ -d lib/"
   },
-  "keywords": [],
+  "keywords": [
+    "mvjs",
+    "move",
+    "movejs",
+    "movemodule"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "eslint": "^4.16.0",
-    "flow-bin": "^0.63.1",
-    "jest": "^22.1.4",
+    "ast-types-flow": "0.0.7",
+    "@babel/polyfill": "^7.0.0-beta.39",
+    "debug": "^3.1.0",
+    "find-up": "^2.1.0",
+    "glob": "^7.1.2",
     "jscodeshift": "^0.4.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.38",
-    "@babel/core": "^7.0.0-beta.38",
-    "@babel/preset-env": "^7.0.0-beta.38",
-    "@babel/preset-flow": "^7.0.0-beta.38"
+    "@babel/cli": "^7.0.0-beta.39",
+    "@babel/core": "^7.0.0-beta.39",
+    "@babel/node": "^7.0.0-beta.39",
+    "@babel/preset-env": "^7.0.0-beta.39",
+    "@babel/preset-flow": "^7.0.0-beta.39",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.39",
+    "eslint": "^4.17.0",
+    "flow-bin": "^0.64.0",
+    "flow-typed": "^2.3.0",
+    "jest": "^22.1.4",
+    "nodemon": "^1.14.11"
   }
 }
