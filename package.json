@@ -18,11 +18,16 @@
     "movejs",
     "movemodule"
   ],
-  "author": "",
+  "jest": {
+    "roots": [
+      "<rootDir>/src/"
+    ]
+  },
+  "author": "Fabio Miranda Costa",
   "license": "ISC",
   "dependencies": {
-    "ast-types-flow": "0.0.7",
     "@babel/polyfill": "^7.0.0-beta.39",
+    "ast-types-flow": "0.0.7",
     "debug": "^3.1.0",
     "find-up": "^2.1.0",
     "glob": "^7.1.2",
@@ -32,9 +37,11 @@
     "@babel/cli": "^7.0.0-beta.39",
     "@babel/core": "^7.0.0-beta.39",
     "@babel/node": "^7.0.0-beta.39",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.39",
     "@babel/preset-env": "^7.0.0-beta.39",
     "@babel/preset-flow": "^7.0.0-beta.39",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.39",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^22.1.0",
     "eslint": "^4.17.0",
     "flow-bin": "^0.64.0",
     "flow-typed": "^2.3.0",

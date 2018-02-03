@@ -3,7 +3,7 @@
 import '@babel/polyfill';
 import path from 'path';
 import {createDebug, warn} from './log';
-import {safeResolve, matchPathStyle} from './path';
+import {matchPathStyle} from './path';
 import {updateNodePath, isImportOrRequireNode} from './ast';
 
 const debug = createDebug(__filename);

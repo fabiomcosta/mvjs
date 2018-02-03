@@ -10,8 +10,6 @@ import type {Options, Context} from './transform';
 
 const debug = createDebug(__filename);
 
-const CWD_PATH = process.cwd();
-
 const glob = promisify(_glob);
 const exec = promisify(child_process.exec);
 
@@ -21,7 +19,7 @@ const exec = promisify(child_process.exec);
  * A import path could be pointing to a file that doesn't exist in the file
  * system if the project's code is broken.
  */
-export function safeResolve(_path: string): string {
+function safeResolve(_path: string): string {
   try {
     return require.resolve(_path);
   } catch (e) {
@@ -105,12 +103,11 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
   return `./${targetImportSourcePath}`;
 }
 
-
 /**
- * Makes `_path` relative to `rootPath`.
+ * Creates a relative path from `_path` to `rootPath`.
  */
 export function relativePath(_path: string, rootPath: string): string {
-  return path.relative(rootPath, path.join(CWD_PATH, _path));
+  return path.relative(rootPath, path.resolve(process.cwd(), _path));
 }
 
 export async function getNpmBinPath(): Promise<string> {
