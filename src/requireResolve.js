@@ -13,7 +13,7 @@ export default function requireResolve(context: Context, _path: string): string 
   } catch (e) {
     if (e.code === 'MODULE_NOT_FOUND') {
       throw new Error(
-        `File '${context.file.path}' is importing '${_path}' but it does not exists.`
+        `File "${context.file.path}" is importing "${_path}" but it does not exists.`
       );
     }
     throw e;

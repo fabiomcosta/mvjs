@@ -9,6 +9,7 @@ describe('requireResolve', () => {
     const context = createFakeContext(
       { path: '/a/b/c.js' }
     );
-    expect(() => requireResolve(context, '/a.js')).toThrow('a');
+    expect(() => requireResolve(context, '/a.js'))
+      .toThrow(`File "/a/b/c.js" is importing "/a.js" but it does not exists.`);
   });
 });
