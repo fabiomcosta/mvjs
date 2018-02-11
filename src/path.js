@@ -5,6 +5,7 @@ import _glob from 'glob';
 import findUp from 'find-up';
 import {promisify} from 'util';
 import child_process from 'child_process';
+import requireResolve from './requireResolve';
 import {createDebug, warn} from './log';
 import type {Options, Context} from './transform';
 
@@ -12,24 +13,6 @@ const debug = createDebug(__filename);
 
 const glob = promisify(_glob);
 const exec = promisify(child_process.exec);
-
-/**
- * Tries to resolve a module path and if it can't find the module we fallback
- * to the passed path.
- * A import path could be pointing to a file that doesn't exist in the file
- * system if the project's code is broken.
- */
-function safeResolve(_path: string): string {
-  try {
-    return require.resolve(_path);
-  } catch (e) {
-    if (e.code === 'MODULE_NOT_FOUND') {
-      warn(e.message);
-      return _path;
-    }
-    throw e;
-  }
-}
 
 /**
  * When changing the import declarations on existing modules, the updated path
@@ -41,7 +24,6 @@ function safeResolve(_path: string): string {
  */
 export function matchPathStyle(_path: string, referencePath: string): string {
 
-  // removing extension in case the referencePath doesn't have one
   const referenceExt = path.extname(referencePath);
   if (!referenceExt) {
 
@@ -54,20 +36,35 @@ export function matchPathStyle(_path: string, referencePath: string): string {
       return pathDirname;
     }
 
-    // remove _path extension
+    // removing extension in case the referencePath doesn't have one
     return path.join(pathDirname, pathBasename);
   }
 
   return _path;
 }
 
-export function updateSourcePath(context: Context, importSourcePath: string): string {
-  const { j, file, options } = context;
+/**
+ * Returns the absolute path that represents the path from the source file if
+ * the current `file.path` was importing the source.
+ * With this value we can check if the relative importSourcePath matches the
+ * provided `sourcePath`.
+ */
+function getAbsoluteImportSourcePath(context: Context, importSourcePath: string): string {
+  const { file } = context;
+  return requireResolve(
+    context,
+    path.resolve(path.dirname(file.path), importSourcePath)
+  );
+}
 
-  // not a relative path
-  if (!importSourcePath.startsWith('.')) {
-    return importSourcePath;
-  }
+function getAbsoluteSourcePath(context: Context): string {
+  const { options: { sourcePath, projectPath } } = context;
+  return path.join(projectPath, sourcePath);
+}
+
+export function updateSourcePath(context: Context, importSourcePath: string): string {
+
+  const { file } = context;
 
   // absolute paths...
   // They are generaly not used "as-is", but there is a babel plugin that
@@ -75,21 +72,25 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
   // https://www.npmjs.com/package/babel-plugin-root-import
   // We are not going to do aything about it.
   if (path.isAbsolute(importSourcePath)) {
-    warn(`Ignoring absolute path '${importSourcePath}' at ${file.path}.`);
+    debug(`Ignoring absolute path "${importSourcePath}" from "${file.path}".`);
     return importSourcePath;
   }
 
-  const absoluteImportSourcePath = safeResolve(
-    path.join(path.resolve(path.dirname(file.path)), importSourcePath)
-  );
-  const { sourcePath, targetPath, projectPath } = options;
-  const absoluteSourcePath = path.join(projectPath, sourcePath);
+  // Not an absolute path and not a relative path, it's either a built-in
+  // module or a dependency, ignore it.
+  if (!importSourcePath.startsWith('.')) {
+    return importSourcePath;
+  }
 
-  // The importSourcePath is not from the file we are moving, ignore...
+  const absoluteSourcePath = getAbsoluteSourcePath(context);
+  const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
+
+  // The importSourcePath is not from the `sourcePath`, ignore it.
   if (absoluteSourcePath !== absoluteImportSourcePath) {
     return importSourcePath;
   }
 
+  const { options: { targetPath } } = context;
   // ./src/c.js
   // a.js b/index.js
   // import x from '../a'; -> import x from '../b';
@@ -118,8 +119,9 @@ export async function getNpmBinPath(): Promise<string> {
 export async function findProjectPath(): Promise<string> {
   const projectPackageJson = await findUp('package.json');
   if (projectPackageJson == null) {
-    // TODO maybe this should be a warning and we could just use process.pwd() as a fallback
-    throw new Error(`Could not find a "package.json" file on any parent directory.`);
+    const cwd = process.cwd();
+    warn(`Could not find a "package.json" file on any parent directory, using "${cwd}" as a fallback.`);
+    return cwd;
   }
   return path.dirname(projectPackageJson);
 }
