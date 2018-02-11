@@ -32,10 +32,16 @@ describe('relativePath', () => {
 
   const CWD = '/Users/username/folder';
 
-  test('creates the correct relative path from a relative path', () => {
+  test('creates a relative path from a relative path outside CWD', () => {
     process.cwd.mockReturnValue(CWD);
     expect(relativePath('a.js', '/Users/username/other'))
       .toBe('../folder/a.js');
+  });
+
+  test('creates a relative path from a relative path inside CWD', () => {
+    process.cwd.mockReturnValue(CWD);
+    expect(relativePath('a.js', '/Users/username/folder/other'))
+      .toBe('../a.js');
   });
 
   test('creates the correct relative path from an absolute path', () => {
