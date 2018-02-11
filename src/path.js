@@ -15,6 +15,17 @@ const glob = promisify(_glob);
 const exec = promisify(child_process.exec);
 
 /**
+ * Makes sure a path always starts with a `.` or a `/`.
+ * Ex: a.js -> ./a.js
+ */
+function normalizePath(_path: string): string {
+  if (_path.startsWith('.') || path.isAbsolute(_path)) {
+    return _path;
+  }
+  return `./${_path}`;
+}
+
+/**
  * When changing the import declarations on existing modules, the updated path
  * should have a similar style to the current path.
  *
@@ -30,11 +41,6 @@ export function matchPathStyle(_path: string, referencePath: string): string {
     const pathExt = path.extname(_path);
     const pathBasename = path.basename(_path, pathExt);
     const pathDirname = path.dirname(_path);
-
-    // remove the `index` file path, because it's cleaner
-    if (pathBasename === 'index') {
-      return pathDirname;
-    }
 
     // removing extension in case the referencePath doesn't have one
     return path.join(pathDirname, pathBasename);
@@ -94,14 +100,16 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
   // ./src/c.js
   // a.js b/index.js
   // import x from '../a'; -> import x from '../b';
-  const targetImportSourcePath = matchPathStyle(
-    path.join(path.dirname(importSourcePath), targetPath),
-    importSourcePath
+  const targetImportSourcePath = normalizePath(
+    matchPathStyle(
+      path.join(path.dirname(importSourcePath), targetPath),
+      importSourcePath
+    )
   );
 
   debug(`Updating ${file.path}: ${importSourcePath} -> ${targetImportSourcePath}`);
 
-  return `./${targetImportSourcePath}`;
+  return targetImportSourcePath;
 }
 
 /**

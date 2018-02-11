@@ -94,17 +94,11 @@ describe('findAllJSPaths', () => {
 
 
 describe('matchPathStyle', () => {
-  test('removes file extension when the reference doesnt have one', () => {
-    expect(matchPathStyle('../a/b.js', '../a/c')).toBe('../a/b');
-  });
   test('keeps the file extension if reference has it', () => {
     expect(matchPathStyle('/a/b.js', '/a/c.js')).toBe('/a/b.js');
   });
-  test('removes any `index` path', () => {
-    expect(matchPathStyle('./a/index.js', '/a/c')).toBe('./a');
-  });
-  test('wont remove index path if reference has file extension', () => {
-    expect(matchPathStyle('./a/index.js', '/a/c.js')).toBe('./a/index.js');
+  test('removes file extension when the reference does not have one', () => {
+    expect(matchPathStyle('../a/b/c/d.js', '../a/c')).toBe('../a/b/c/d');
   });
 });
 
@@ -130,7 +124,7 @@ describe('updateSourcePath', () => {
   });
 
   test('debugs about the absolute path', () => {
-    // $FlowIgnore $debug is a fake prop, but we needed it
+    // $FlowIgnore $debug only exists because we mocked `log`
     const debug = require('../log').$debug;
     const context = createFakeContext({ path: '/a/b.js' });
     updateSourcePath(context, '/c/d');
@@ -146,11 +140,14 @@ describe('updateSourcePath', () => {
   });
 
   test(`updates the sourcePath`, () => {
+    // $FlowIgnore $debug only exists because we mocked `log`
+    const debug = require('../log').$debug;
     const context = createFakeContext(
       { path: '/a/b/c.js' },
       { sourcePath: 'd.js', targetPath: 'e.js', projectPath: '/a/b' }
     );
     expect(updateSourcePath(context, './d')).toBe('./e');
+    expect(debug).toHaveBeenCalledWith(`Updating /a/b/c.js: ./d -> ./e`);
   });
 
 });
