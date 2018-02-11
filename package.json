@@ -19,6 +19,8 @@
     "movemodule"
   ],
   "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/__tests__/**/(*.)(spec|test).js"],
     "roots": [
       "<rootDir>/src/"
     ]

@@ -1,22 +1,10 @@
 // @flow
 
 import path from 'path';
+import {mockDescriptor, createFakeContext} from './utils';
 import {relativePath, getNpmBinPath, findProjectPath, findAllJSPaths, matchPathStyle, updateSourcePath} from '../path';
 
-function mockDescriptor(obj, propertyName, createDescriptor) {
-  let descriptor;
-  beforeEach(() => {
-    descriptor = Object.getOwnPropertyDescriptor(obj, propertyName);
-    // $FlowIgnore
-    Object.defineProperty(process, propertyName, createDescriptor());
-  });
-  afterEach(() => {
-    // $FlowIgnore
-    Object.defineProperty(process, propertyName, descriptor);
-  });
-}
-
-mockDescriptor(process, 'cwd', () => ({ value: jest.fn() }));
+mockDescriptor(process, 'cwd', { value: jest.fn() });
 
 jest.mock('../log', () => {
   const debug = jest.fn();
@@ -130,14 +118,6 @@ jest.mock('../requireResolve', () => (context, _path) => {
 });
 
 describe('updateSourcePath', () => {
-
-  function createFakeContext(file, options) {
-    return {
-      j: {},
-      file: { path: '', ...file },
-      options: { sourcePath: '', targetPath: '', projectPath: '', ...options }
-    };
-  }
 
   test('ignores non relative paths', () => {
     const context = createFakeContext();
