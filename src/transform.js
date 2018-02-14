@@ -12,8 +12,7 @@ export const parser = 'flow';
 
 export type Options = {
   absoluteSourcePath: string,
-  absoluteTargetPath: string,
-  absoluteProjectPath: string
+  absoluteTargetPath: string
 };
 
 export type Context = {

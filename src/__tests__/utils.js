@@ -19,6 +19,6 @@ export function createFakeContext(file?: Object, options?: Object): Context {
   return {
     j: {},
     file: { path: '', ...file },
-    options: { absoluteSourcePath: '', absoluteTargetPath: '', absoluteProjectPath: '', ...options }
+    options: { absoluteSourcePath: '', absoluteTargetPath: '', ...options }
   };
 }
