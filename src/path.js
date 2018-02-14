@@ -119,11 +119,6 @@ export function relativePath(_path: string, rootPath: string): string {
   return path.relative(rootPath, path.resolve(process.cwd(), _path));
 }
 
-export async function getNpmBinPath(): Promise<string> {
-  const { stdout } = await exec('npm bin');
-  return stdout.trim();
-}
-
 export async function findProjectPath(): Promise<string> {
   const projectPackageJson = await findUp('package.json');
   if (projectPackageJson == null) {

@@ -5,7 +5,7 @@ import child_process from 'child_process';
 import {promisify} from 'util';
 import path from 'path';
 import {createDebug, log} from './log';
-import {relativePath, getNpmBinPath, findAllJSPaths, findProjectPath} from './path';
+import {relativePath, findAllJSPaths, findProjectPath} from './path';
 
 const debug = createDebug(__filename);
 const spawn = promisify(child_process.spawn);
@@ -42,9 +42,12 @@ async function executeTransform(options: Options): Promise<string> {
     ...allJSPaths
   ];
 
-  const npmBinPath = await getNpmBinPath();
+  const jscodeshiftBin = path.resolve(
+    __dirname, '..', 'node_modules', '.bin', 'jscodeshift'
+  );
+
   await spawn(
-    path.join(npmBinPath, 'jscodeshift'),
+    jscodeshiftBin,
     cmdArgs,
     { stdio: 'inherit' }
   );

@@ -2,7 +2,7 @@
 
 import path from 'path';
 import {mockDescriptor, createFakeContext} from './utils';
-import {relativePath, getNpmBinPath, findProjectPath, findAllJSPaths, matchPathStyle, updateSourcePath} from '../path';
+import {relativePath, findProjectPath, findAllJSPaths, matchPathStyle, updateSourcePath} from '../path';
 
 mockDescriptor(process, 'cwd', { value: jest.fn() });
 
@@ -36,18 +36,6 @@ describe('relativePath', () => {
     process.cwd.mockReturnValue(CWD);
     expect(relativePath('/Users/username/folder/a.js', '/Users/username/other'))
       .toBe('../folder/a.js');
-  });
-});
-
-
-jest.mock('child_process', () => ({
-  exec: jest.fn((cmd, cb) => cb(null, {stdout: `<stdout-${cmd}>\n`}))
-}));
-
-describe('getNpmBinPath', () => {
-  test('returns the stdout of the npm bin command', async () => {
-    const binPath = await getNpmBinPath();
-    expect(binPath).toBe('<stdout-npm bin>');
   });
 });
 
