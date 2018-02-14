@@ -37,7 +37,7 @@ async function executeTransform(options: Options): Promise<string> {
   const cmdArgs = [
     '-t', 'lib/transform.js',
     '--absoluteSourcePath', absoluteSourcePath,
-    '--absoluteTargetPath', absoluteTargetPath
+    '--absoluteTargetPath', absoluteTargetPath,
     ...allJSPaths
   ];
 
