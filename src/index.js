@@ -46,13 +46,11 @@ async function executeTransform(options: Options): Promise<string> {
     __dirname, '..', 'node_modules', '.bin', 'jscodeshift'
   );
 
-  await spawn(
+  return await spawn(
     jscodeshiftBin,
     cmdArgs,
     { stdio: 'inherit' }
   );
-
-  return 'ok';
 }
 
 // TODO: support .mjs

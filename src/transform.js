@@ -24,9 +24,8 @@ export type Context = {
 
 export default function transformer(file: any, api: any, options: Options) {
   const j = api.jscodeshift;
-
-  const transform = j(file.source);
   const context = { options, j, file };
+  const transform = j(file.source);
 
   transform
     .find(j.ImportDeclaration)

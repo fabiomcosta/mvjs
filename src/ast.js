@@ -23,7 +23,10 @@ function updateTemplateLiteralPath(context: Context, templateLiteral: TemplateLi
 function updateLiteralPath(context: Context, literal: Literal): Literal {
   const { j } = context;
   if (typeof literal.value !== 'string') {
-    throw new Error('');
+    throw new Error(
+      `Cannot transform Literal because its value is not a string. ` +
+      `Found ${JSON.stringify(literal.value)} of type "${typeof literal.value}".`
+    );
   }
   return j.literal(updateSourcePath(context, literal.value));
 }
