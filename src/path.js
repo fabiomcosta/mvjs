@@ -63,11 +63,6 @@ function getAbsoluteImportSourcePath(context: Context, importSourcePath: string)
   );
 }
 
-function getAbsoluteSourcePath(context: Context): string {
-  const { options: { sourcePath, projectPath } } = context;
-  return path.join(projectPath, sourcePath);
-}
-
 export function updateSourcePath(context: Context, importSourcePath: string): string {
 
   const { file } = context;
@@ -88,7 +83,7 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
     return importSourcePath;
   }
 
-  const absoluteSourcePath = getAbsoluteSourcePath(context);
+  const { options: { absoluteSourcePath, absoluteTargetPath } } = context;
   const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
 
   // The importSourcePath is not from the `sourcePath`, ignore it.
@@ -96,13 +91,12 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
     return importSourcePath;
   }
 
-  const { options: { targetPath } } = context;
   // ./src/c.js
-  // a.js b/index.js
-  // import x from '../a'; -> import x from '../b';
+  // a.js b.js
+  // import x from '../a'; -> import x from '../b;
   const targetImportSourcePath = normalizePath(
     matchPathStyle(
-      path.join(path.dirname(importSourcePath), targetPath),
+      path.relative(path.dirname(file.path), absoluteTargetPath),
       importSourcePath
     )
   );
@@ -110,13 +104,6 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
   debug(`Updating ${file.path}: ${importSourcePath} -> ${targetImportSourcePath}`);
 
   return targetImportSourcePath;
-}
-
-/**
- * Creates a relative path from `_path` to `rootPath`.
- */
-export function relativePath(_path: string, rootPath: string): string {
-  return path.relative(rootPath, path.resolve(process.cwd(), _path));
 }
 
 export async function findProjectPath(): Promise<string> {

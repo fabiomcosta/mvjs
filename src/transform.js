@@ -11,9 +11,9 @@ const debug = createDebug(__filename);
 export const parser = 'flow';
 
 export type Options = {
-  sourcePath: string,
-  targetPath: string,
-  projectPath: string
+  absoluteSourcePath: string,
+  absoluteTargetPath: string,
+  absoluteProjectPath: string
 };
 
 export type Context = {
@@ -26,6 +26,10 @@ export default function transformer(file: any, api: any, options: Options) {
   const j = api.jscodeshift;
   const context = { options, j, file };
   const transform = j(file.source);
+
+  if (!path.isAbsolute(file.path)) {
+    throw new Error('hmmm file.path is not absolute');
+  }
 
   transform
     .find(j.ImportDeclaration)

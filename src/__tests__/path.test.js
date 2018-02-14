@@ -2,7 +2,7 @@
 
 import path from 'path';
 import {mockDescriptor, createFakeContext} from './utils';
-import {relativePath, findProjectPath, findAllJSPaths, matchPathStyle, updateSourcePath} from '../path';
+import {findProjectPath, findAllJSPaths, matchPathStyle, updateSourcePath} from '../path';
 
 mockDescriptor(process, 'cwd', { value: jest.fn() });
 
@@ -13,30 +13,6 @@ jest.mock('../log', () => {
     warn: jest.fn(),
     createDebug: () => debug
   };
-});
-
-
-describe('relativePath', () => {
-
-  const CWD = '/Users/username/folder';
-
-  test('creates a relative path from a relative path outside CWD', () => {
-    process.cwd.mockReturnValue(CWD);
-    expect(relativePath('a.js', '/Users/username/other'))
-      .toBe('../folder/a.js');
-  });
-
-  test('creates a relative path from a relative path inside CWD', () => {
-    process.cwd.mockReturnValue(CWD);
-    expect(relativePath('a.js', '/Users/username/folder/other'))
-      .toBe('../a.js');
-  });
-
-  test('creates the correct relative path from an absolute path', () => {
-    process.cwd.mockReturnValue(CWD);
-    expect(relativePath('/Users/username/folder/a.js', '/Users/username/other'))
-      .toBe('../folder/a.js');
-  });
 });
 
 
@@ -122,7 +98,7 @@ describe('updateSourcePath', () => {
   test(`ignores if the absolute import path does NOT match the absolute 'sourcePath'`, () => {
     const context = createFakeContext(
       { path: '/a/b/c.js' },
-      { sourcePath: 'd.js', projectPath: '/a/b' }
+      { absoluteSourcePath: '/a/b/d.js' }
     );
     expect(updateSourcePath(context, './e.js')).toBe('./e.js');
   });
@@ -132,7 +108,7 @@ describe('updateSourcePath', () => {
     const debug = require('../log').$debug;
     const context = createFakeContext(
       { path: '/a/b/c.js' },
-      { sourcePath: 'd.js', targetPath: 'e.js', projectPath: '/a/b' }
+      { absoluteSourcePath: '/a/b/d.js', absoluteTargetPath: '/a/b/e.js' }
     );
     expect(updateSourcePath(context, './d')).toBe('./e');
     expect(debug).toHaveBeenCalledWith(`Updating /a/b/c.js: ./d -> ./e`);
