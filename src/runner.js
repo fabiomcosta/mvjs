@@ -34,7 +34,7 @@ export async function executeTransform(options: Options): Promise<string> {
 
   const cmdArgs = [
     '--silent',
-    '-t', path.join(__dirname, 'transform.js'),
+    '--transform', path.join(__dirname, 'transform.js'),
     '--absoluteSourcePath', absoluteSourcePaths[0], // TODO FOR NOW WE ONLY ACCEPT 1 SOURCE PATH
     '--absoluteTargetPath', absoluteTargetPath,
     ...allJSPaths
