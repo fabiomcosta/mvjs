@@ -6,10 +6,11 @@ import type {Context} from './transform';
 import type {Node, TemplateLiteral, Literal, Identifier, CallExpression} from 'ast-types-flow';
 
 function updateTemplateLiteralPath(context: Context, templateLiteral: TemplateLiteral): ?TemplateLiteral {
-  const { j } = context;
+  const { j, file } = context;
   if (templateLiteral.expressions.length || templateLiteral.quasis.length > 1) {
     return warn(
-      `Cannot transform TemplateLiteral (print template) to Literal because it contains expressions.`
+      `Cannot transform TemplateLiteral to Literal because it contains expressions.`,
+      {file, loc: templateLiteral.loc}
     );
   }
   const literalValue = updateSourcePath(context, templateLiteral.quasis[0].value.cooked);
@@ -24,7 +25,7 @@ function updateLiteralPath(context: Context, literal: Literal): Literal {
   const { j } = context;
   if (typeof literal.value !== 'string') {
     throw new Error(
-      `Cannot transform Literal because its value is not a string. ` +
+      `Cannot transform Literal because its value is not a string.\n` +
       `Found ${JSON.stringify(literal.value)} of type "${typeof literal.value}".`
     );
   }
@@ -32,7 +33,7 @@ function updateLiteralPath(context: Context, literal: Literal): Literal {
 }
 
 export function updateNodePath(context: Context, originalSourcePathNode: Node): ?Node {
-  const { j } = context;
+  const { j, file } = context;
   switch (originalSourcePathNode.type) {
     case 'Literal':
       return updateLiteralPath(context, originalSourcePathNode);
@@ -41,7 +42,8 @@ export function updateNodePath(context: Context, originalSourcePathNode: Node): 
   }
   return warn(
     `Cannot transform anything other than Literals or TemplateLiterals. ` +
-    `Found ${originalSourcePathNode.type} at (print code)`
+    `Found ${originalSourcePathNode.type}.`,
+    {file, loc: originalSourcePathNode.loc}
   );
 }
 

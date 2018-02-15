@@ -3,14 +3,17 @@
   "version": "1.0.0",
   "description": "Moves JavaScript files and updates their reference on other modules inside the project.",
   "main": "lib/index.js",
+  "bin": {
+    "mvjs": "lib/cli.js"
+  },
   "scripts": {
     "test": "npm run flow && npm run unit",
     "flow": "flow",
     "flow-typed": "flow-typed",
     "unit": "jest",
     "prepublishOnly": "npm run build",
-    "build": "babel src/ -d lib/",
-    "build:watch": "nodemon --watch src/ --exec babel -- --watch src/ -d lib/"
+    "build": "babel src/ -d lib/ --copy-files",
+    "build:watch": "npm run build -- --watch"
   },
   "keywords": [
     "mvjs",
@@ -30,12 +33,14 @@
   "author": "Fabio Miranda Costa",
   "license": "ISC",
   "dependencies": {
+    "@babel/code-frame": "^7.0.0-beta.40",
     "@babel/polyfill": "^7.0.0-beta.39",
     "ast-types-flow": "0.0.7",
     "debug": "^3.1.0",
     "find-up": "^2.1.0",
     "glob": "^7.1.2",
-    "jscodeshift": "^0.4.0"
+    "jscodeshift": "^0.4.0",
+    "yargs": "^11.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.39",
