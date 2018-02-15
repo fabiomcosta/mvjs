@@ -51,8 +51,8 @@ describe('findAllJSPaths', () => {
 
   // TODO: this would be better covered by an integration test
   test('returns all glob paths filtering out paths containing "node_modules"', async () => {
-    const allJSPaths = await findAllJSPaths();
-    expect(allJSPaths).toEqual(['**/*.js', '/c/d.js']);
+    const allJSPaths = await findAllJSPaths('/c');
+    expect(allJSPaths).toEqual(['/c/**/*.js', '/c/d.js']);
   });
 });
 
