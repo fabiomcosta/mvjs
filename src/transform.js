@@ -26,10 +26,6 @@ export default function transformer(file: any, api: any, options: Options) {
   const context = { options, j, file };
   const transform = j(file.source);
 
-  if (!path.isAbsolute(file.path)) {
-    throw new Error('hmmm file.path is not absolute');
-  }
-
   transform
     .find(j.ImportDeclaration)
     .forEach(path => {

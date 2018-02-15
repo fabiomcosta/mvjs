@@ -21,11 +21,13 @@ async function executeTransform(options: Options): Promise<string> {
   const projectPath = await findProjectPath();
   debug('project path', projectPath);
 
-  const allJSPaths = await findAllJSPaths();
+  const allJSPaths = await findAllJSPaths(projectPath);
+  debug('detected js paths', allJSPaths);
 
   const { sourcePath, targetPath } = options;
 
   // TODO CHECK if SOURCE exists
+  // TODO CHECK if TARGET already exists
   // TODO MOVE FILE sourcePath -> targetPath
 
   const absoluteSourcePath = path.resolve(sourcePath);
@@ -35,7 +37,7 @@ async function executeTransform(options: Options): Promise<string> {
   debug('absolute target', absoluteTargetPath);
 
   const cmdArgs = [
-    '-t', 'lib/transform.js',
+    '-t', path.join(__dirname, 'transform.js'),
     '--absoluteSourcePath', absoluteSourcePath,
     '--absoluteTargetPath', absoluteTargetPath,
     ...allJSPaths
@@ -67,8 +69,8 @@ function validateOptions({ sourcePath, targetPath }: Options) {
 
 (async () => {
 
-  const sourcePath = '/Users/fcosta/Dev/own/mvjs/a.js';
-  const targetPath = '/Users/fcosta/Dev/own/mvjs/b.js';
+  const sourcePath = 'a.js';
+  const targetPath = 'b.js';
 
   log(
     await executeTransform({
