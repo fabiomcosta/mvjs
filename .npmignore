@@ -1,2 +1,6 @@
 src/
-flow-typed
+flow-typed/
+__tests__
+.gitignore
+.flowconfig
+.babelrc
