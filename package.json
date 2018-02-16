@@ -1,7 +1,7 @@
 {
   "name": "@fabiomcosta/mvjs",
   "version": "1.0.0",
-  "description": "Moves JavaScript files and updates their reference on other modules inside the project.",
+  "description": "Moves JavaScript modules and updates their reference on other modules inside the current project.",
   "main": "lib/index.js",
   "bin": {
     "mvjs": "lib/cli.js"

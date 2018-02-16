@@ -16,6 +16,8 @@ type NormalizedOptions = {
   absoluteTargetPath: string
 };
 
+// TODO: support .mjs
+// TODO: support .jsx
 const SUPPORTED_EXTENSIONS = new Set(['.js']);
 
 async function fsExists(_path: string): Promise<boolean> {
@@ -65,8 +67,6 @@ async function validatePaths(options: Options): Promise<Options> {
     );
   }
 
-  // TODO: support .mjs
-  // TODO: support .jsx
   sourcePaths
     .map(_path => ({ _path, ext: path.extname(_path) }))
     .forEach(({ _path, ext }) => {
@@ -88,10 +88,6 @@ async function validatePaths(options: Options): Promise<Options> {
 
   return options;
 }
-
-// TODO CHECK if SOURCE exists
-// TODO CHECK if TARGET already exists
-// TODO MOVE FILE sourcePath -> targetPath
 
 export async function validate(options: Options): Promise<Options> {
   return await validatePaths(options);

@@ -1,6 +1,5 @@
 // @flow
 
-import '@babel/polyfill';
 import child_process from 'child_process';
 import {promisify} from 'util';
 import path from 'path';
@@ -28,6 +27,8 @@ export async function executeTransform(options: Options): Promise<string> {
   const allJSPaths = await findAllJSPaths(projectPath);
   debug('Detected js paths', `\n  ${allJSPaths.join('\n  ')}`);
 
+  // TODO MOVE FILE sourcePath -> targetPath
+
   const jscodeshiftBin = path.join(
     __dirname, '..', 'node_modules', '.bin', 'jscodeshift'
   );
@@ -35,7 +36,8 @@ export async function executeTransform(options: Options): Promise<string> {
   const cmdArgs = [
     '--silent',
     '--transform', path.join(__dirname, 'transform.js'),
-    '--absoluteSourcePath', absoluteSourcePaths[0], // TODO FOR NOW WE ONLY ACCEPT 1 SOURCE PATH
+    // TODO FOR NOW WE ONLY ACCEPT 1 SOURCE PATH
+    '--absoluteSourcePath', absoluteSourcePaths[0],
     '--absoluteTargetPath', absoluteTargetPath,
     ...allJSPaths
   ];
