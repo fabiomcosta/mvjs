@@ -11,7 +11,7 @@
     "flow": "flow",
     "flow-typed": "flow-typed",
     "unit": "jest",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "rimraf lib/ && npm run build",
     "build": "babel src/ -d lib/ --copy-files",
     "build:watch": "npm run build -- --watch"
   },
@@ -56,6 +56,7 @@
     "flow-bin": "^0.64.0",
     "flow-typed": "^2.3.0",
     "jest": "^22.2.2",
-    "nodemon": "^1.14.11"
+    "nodemon": "^1.14.11",
+    "rimraf": "^2.6.2"
   }
 }
