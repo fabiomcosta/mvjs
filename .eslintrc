@@ -1,0 +1,24 @@
+{
+  root: true,
+  extends: ["eslint:recommended", "plugin:jest/recommended"],
+  plugins: ["flowtype", "babel", "jest"],
+  env: {
+    node: true,
+    es6: true,
+    "jest/globals": true
+  },
+  parser: "babel-eslint",
+  parserOptions: {
+    ecmaFeatures: {
+      experimentalObjectRestSpread: true
+    }
+  },
+  settings: {
+    flowtype: {
+      onlyFilesWithFlowAnnotation: true
+    }
+  },
+  rules: {
+    "no-case-declarations": 0
+  }
+}

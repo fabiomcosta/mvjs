@@ -1,6 +1,5 @@
 // @flow
 
-import path from 'path';
 import type {Context} from './transform';
 
 /**
@@ -18,4 +17,4 @@ export default function requireResolve(context: Context, _path: string): string 
     }
     throw e;
   }
-};
+}

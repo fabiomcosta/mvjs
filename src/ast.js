@@ -33,7 +33,7 @@ function updateLiteralPath(context: Context, literal: Literal): Literal {
 }
 
 export function updateNodePath(context: Context, originalSourcePathNode: Node): ?Node {
-  const { j, file } = context;
+  const { file } = context;
   switch (originalSourcePathNode.type) {
     case 'Literal':
       return updateLiteralPath(context, originalSourcePathNode);

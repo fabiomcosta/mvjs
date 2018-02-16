@@ -4,15 +4,13 @@ import path from 'path';
 import _glob from 'glob';
 import findUp from 'find-up';
 import {promisify} from 'util';
-import child_process from 'child_process';
 import requireResolve from './requireResolve';
 import {createDebug, warn} from './log';
-import type {Options, Context} from './transform';
+import type {Context} from './transform';
 
 const debug = createDebug(__filename);
 
 const glob = promisify(_glob);
-const exec = promisify(child_process.exec);
 
 /**
  * Makes sure a path always starts with a `.` or a `/`.

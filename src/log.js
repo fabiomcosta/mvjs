@@ -41,9 +41,11 @@ function createFrame({file, loc}: LogOptions = {}): string {
 }
 
 export function log(msg: string, options?: LogOptions): void {
+  // eslint-disable-next-line no-console
   console.log(`LOG: ${msg}${createFrame(options)}`);
 }
 
 export function warn(msg: string, options?: LogOptions): void {
+  // eslint-disable-next-line no-console
   console.warn(`WARN: ${msg}${createFrame(options)}`);
 }

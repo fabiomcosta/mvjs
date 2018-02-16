@@ -1,6 +1,5 @@
 // @flow
 
-import path from 'path';
 import requireResolve from '../requireResolve';
 import {createFakeContext} from './utils';
 

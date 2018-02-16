@@ -3,7 +3,7 @@
 import child_process from 'child_process';
 import {promisify} from 'util';
 import path from 'path';
-import {createDebug, log} from './log';
+import {createDebug} from './log';
 import {findAllJSPaths, findProjectPath} from './path';
 import {validate, normalize} from './options';
 import type {Options} from './options';

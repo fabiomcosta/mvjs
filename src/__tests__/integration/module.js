@@ -1,3 +1,4 @@
+/* eslint-disable */
 
 // dependency or built-in
 import('lodash');
@@ -12,11 +13,11 @@ import '/src/c.js';
 import _2 from '/src/c.js';
 
 // es6 imports
-import('./a');
-require('./a.js');
-require(`./a`);
-import _3 from './a';
-import './a';
+import('./b');
+require('./b.js');
+require(`./b`);
+import _3 from './b';
+import './b';
 
 // not one of the supported AST nodes
 required('nott-require');

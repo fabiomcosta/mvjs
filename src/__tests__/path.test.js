@@ -1,6 +1,5 @@
 // @flow
 
-import path from 'path';
 import {mockDescriptor, createFakeContext} from './utils';
 import {findProjectPath, findAllJSPaths, matchPathStyle, updateSourcePath} from '../path';
 
