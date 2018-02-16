@@ -31,7 +31,7 @@
     ]
   },
   "author": "Fabio Miranda Costa",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@babel/code-frame": "^7.0.0-beta.40",
     "@babel/polyfill": "^7.0.0-beta.39",
