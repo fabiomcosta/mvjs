@@ -33,7 +33,7 @@ export function createFakeContext(file?: Object, options?: Object): Context {
   };
 }
 
-type FsDefinition = {
+export type FsDefinition = {
   [string]: string | Promise<string>
 };
 type FsDescriptor = {
