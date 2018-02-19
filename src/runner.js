@@ -13,7 +13,7 @@ const debug = createDebug(__filename);
 const spawn = promisify(child_process.spawn);
 const rename = promisify(fs.rename);
 
-export async function executeTransform(options: Options): Promise<string> {
+export async function executeTransform(options: Options): Promise<void> {
 
   debug('sourcePaths', options.sourcePaths.join(' '));
   debug('targetPath', options.targetPath);
@@ -44,11 +44,11 @@ export async function executeTransform(options: Options): Promise<string> {
     ...allJSPaths
   ];
 
-  await rename(absoluteSourcePath, absoluteTargetPath);
-  return await spawn(
+  await spawn(
     jscodeshiftBin,
     cmdArgs,
     { stdio: 'inherit' }
   );
+  await rename(absoluteSourcePath, absoluteTargetPath);
 }
 

@@ -2,7 +2,6 @@
 
 // @flow
 
-import '@babel/polyfill';
 import yargs from 'yargs';
 import {executeTransform} from './runner';
 
