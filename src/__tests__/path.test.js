@@ -47,11 +47,9 @@ describe('findProjectPath', () => {
 jest.mock('glob', () => jest.fn((glob, cb) => cb(null, [glob, '/a/node_modules/b.js', '/c/d.js'])));
 
 describe('findAllJSPaths', () => {
-
-  // TODO: this would be better covered by an integration test
   test('returns all glob paths filtering out paths containing "node_modules"', async () => {
     const allJSPaths = await findAllJSPaths('/c');
-    expect(allJSPaths).toEqual(['/c/**/*.js', '/c/d.js']);
+    expect(allJSPaths).toEqual(['/c/**/*.{js,jsx,mjs,es,es6}', '/c/d.js']);
   });
 });
 

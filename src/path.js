@@ -6,6 +6,7 @@ import findUp from 'find-up';
 import {promisify} from 'util';
 import requireResolve from './requireResolve';
 import {createDebug, warn} from './log';
+import {SUPPORTED_EXTENSIONS} from './options';
 import type {Context} from './transform';
 
 const debug = createDebug(__filename);
@@ -117,9 +118,9 @@ export async function findProjectPath(): Promise<string> {
 // TODO: use git and hg to consider ignored files
 // note that the .git and .hg folder would need to match the package.json
 // folder for this work properly.
-// TODO: support .mjs
 export async function findAllJSPaths(rootPath: string): Promise<Array<string>> {
   // THIS WILL NOT WORK ON WINDOWS
-  return (await promisify(glob)(`${rootPath}/**/*.js`)).filter(p => !p.includes('node_modules'));
+  const extensions = Array.from(SUPPORTED_EXTENSIONS).join(',');
+  return (await promisify(glob)(`${rootPath}/**/*.{${extensions}}`)).filter(p => !p.includes('node_modules'));
 }
 

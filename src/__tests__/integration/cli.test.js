@@ -117,4 +117,28 @@ import './b';`
       );
     });
   });
+
+  test('supports moving jsx files', async () => {
+    await createTmpFs({
+      './package.json': readFile(path.join(__dirname, 'package.json')),
+      './a.jsx': '',
+      './modules.jsx': `import './a.jsx';`
+    }, async ({ cwd, exec }) => {
+      await exec(['./a.jsx', './b.jsx']);
+      expect(await readFileString(path.join(cwd, './modules.jsx')))
+        .toEqual(`import './b.jsx';`);
+    });
+  });
+
+  test('supports moving mjs files', async () => {
+    await createTmpFs({
+      './package.json': readFile(path.join(__dirname, 'package.json')),
+      './a.mjs': '',
+      './modules.mjs': `import './a.mjs';`
+    }, async ({ cwd, exec }) => {
+      await exec(['./a.mjs', './b.mjs']);
+      expect(await readFileString(path.join(cwd, './modules.mjs')))
+        .toEqual(`import './b.mjs';`);
+    });
+  });
 });

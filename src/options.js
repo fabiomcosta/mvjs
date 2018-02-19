@@ -16,9 +16,10 @@ type NormalizedOptions = {
   absoluteTargetPath: string
 };
 
-// TODO: support .mjs
-// TODO: support .jsx
-const SUPPORTED_EXTENSIONS = new Set(['.js']);
+export const SUPPORTED_EXTENSIONS: Set<string> = new Set(['js', 'jsx', 'mjs', 'es', 'es6']);
+const SUPPORTED_EXTENSIONS_DOTTED = new Set(
+  [...Array.from(SUPPORTED_EXTENSIONS, ext => `.${ext}`)]
+);
 
 async function fsExists(_path: string): Promise<boolean> {
   try {
@@ -70,7 +71,7 @@ async function validatePaths(options: Options): Promise<Options> {
   sourcePaths
     .map(_path => ({ _path, ext: path.extname(_path) }))
     .forEach(({ _path, ext }) => {
-      if (!SUPPORTED_EXTENSIONS.has(ext)) {
+      if (!SUPPORTED_EXTENSIONS_DOTTED.has(ext)) {
         throw new Error(
           `Can't move "${_path}". Supported extensions: ` +
           `${Array.from(SUPPORTED_EXTENSIONS).join(', ')}.`
@@ -79,7 +80,7 @@ async function validatePaths(options: Options): Promise<Options> {
     });
 
   const targetExt = path.extname(targetPath);
-  if (!SUPPORTED_EXTENSIONS.has(targetExt)) {
+  if (!SUPPORTED_EXTENSIONS_DOTTED.has(targetExt)) {
     throw new Error(
       `Can't move to "${targetPath}". Supported extensions: ` +
       `${Array.from(SUPPORTED_EXTENSIONS).join(', ')}.`

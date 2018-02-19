@@ -6,7 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import {createDebug} from './log';
 import {findAllJSPaths, findProjectPath} from './path';
-import {validate, normalize} from './options';
+import {validate, normalize, SUPPORTED_EXTENSIONS} from './options';
 import type {Options} from './options';
 
 const debug = createDebug(__filename);
@@ -36,13 +36,13 @@ export async function executeTransform(options: Options): Promise<void> {
     __dirname, '..', 'node_modules', '.bin', 'jscodeshift'
   );
 
-  const cmdArgs = [
+  const cmdArgs = allJSPaths.concat([
     '--silent',
+    '--extensions', Array.from(SUPPORTED_EXTENSIONS).join(','),
     '--transform', path.join(__dirname, 'transform.js'),
     '--absoluteSourcePath', absoluteSourcePath,
-    '--absoluteTargetPath', absoluteTargetPath,
-    ...allJSPaths
-  ];
+    '--absoluteTargetPath', absoluteTargetPath
+  ]);
 
   await spawn(
     jscodeshiftBin,
