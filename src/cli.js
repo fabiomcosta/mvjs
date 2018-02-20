@@ -25,4 +25,5 @@ const {argv} = yargs
     targetPath
   });
 
-})();
+  // eslint-disable-next-line no-console
+})().catch(console.error);
