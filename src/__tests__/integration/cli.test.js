@@ -34,7 +34,10 @@ type TmpFsObject = {
 };
 type TmpFsCallback = (TmpFsObject) => mixed;
 async function createTmpFs(definition: FsDefinition, callback: TmpFsCallback): Promise<void> {
-  const fsDescriptor = await createTemporaryFs(definition);
+  const fsDescriptor = await createTemporaryFs({
+    './package.json': '{}',
+    ...definition
+  });
   await callback({
     cwd: fsDescriptor.root,
     async exec(args: Array<string>): Promise<ChildProcess> {
@@ -48,7 +51,6 @@ describe('cli', () => {
 
   test('ignores require/import paths that dont match the moved paths', async () => {
     await createTmpFs({
-      './package.json': readFile(path.join(__dirname, 'package.json')),
       './a.js': '',
       './modules.js': `
 // dependency or built-in
@@ -98,7 +100,6 @@ require(x + '1');`
 
   test('rewrites require/import paths that match the moved paths', async () => {
     await createTmpFs({
-      './package.json': readFile(path.join(__dirname, 'package.json')),
       './a.js': '',
       './modules.js': `
 import('./a');
@@ -120,7 +121,6 @@ import './b';`
 
   test('supports moving jsx files', async () => {
     await createTmpFs({
-      './package.json': readFile(path.join(__dirname, 'package.json')),
       './a.jsx': '',
       './modules.jsx': `import './a.jsx';`
     }, async ({ cwd, exec }) => {
@@ -132,7 +132,6 @@ import './b';`
 
   test('supports moving mjs files', async () => {
     await createTmpFs({
-      './package.json': readFile(path.join(__dirname, 'package.json')),
       './a.mjs': '',
       './modules.mjs': `import './a.mjs';`
     }, async ({ cwd, exec }) => {
