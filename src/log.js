@@ -3,8 +3,9 @@
 import {basename, dirname, extname} from 'path';
 import {codeFrameColumns} from '@babel/code-frame';
 import debug from 'debug';
-import type {Debugger} from 'debug';
 import pkg from '../package.json';
+import type {Debugger} from 'debug';
+import type {File} from './transform';
 
 function getPackageNameWithoutNamespace(): string {
   return pkg.name.split('/')[1];
@@ -21,11 +22,6 @@ function niceName(name: string): string {
 export function createDebug(filename: string): Debugger {
   return debug(`${getPackageNameWithoutNamespace()}:${niceName(filename)}`);
 }
-
-type File = {
-  source: string,
-  path: string
-};
 
 type LogOptions = {
   file?: File,

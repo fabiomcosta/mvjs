@@ -6,7 +6,7 @@ import type {Context} from './transform';
 import type {Node, TemplateLiteral, Literal, Identifier, CallExpression} from 'ast-types-flow';
 
 function updateTemplateLiteralPath(context: Context, templateLiteral: TemplateLiteral): ?TemplateLiteral {
-  const { j, file } = context;
+  const {j, file} = context;
   if (templateLiteral.expressions.length || templateLiteral.quasis.length > 1) {
     return warn(
       `Cannot transform TemplateLiteral to Literal because it contains expressions.`,
@@ -16,13 +16,13 @@ function updateTemplateLiteralPath(context: Context, templateLiteral: TemplateLi
   const literalValue = updateSourcePath(context, templateLiteral.quasis[0].value.cooked);
   return j.templateLiteral(
     // TODO raw value is different, look at AST specs
-    [j.templateElement({ cooked: literalValue, raw: literalValue }, true)],
+    [j.templateElement({cooked: literalValue, raw: literalValue}, true)],
     []
   );
 }
 
 function updateLiteralPath(context: Context, literal: Literal): Literal {
-  const { j } = context;
+  const {j} = context;
   if (typeof literal.value !== 'string') {
     throw new Error(
       `Cannot transform Literal because its value is not a string.\n` +
@@ -33,7 +33,7 @@ function updateLiteralPath(context: Context, literal: Literal): Literal {
 }
 
 export function updateNodePath(context: Context, originalSourcePathNode: Node): ?Node {
-  const { file } = context;
+  const {file} = context;
   switch (originalSourcePathNode.type) {
     case 'Literal':
       return updateLiteralPath(context, originalSourcePathNode);
@@ -52,7 +52,7 @@ function isProbablyGlobalIdentifier(identifier: Identifier): boolean {
   return (/^self|global$/).test(identifier.name);
 }
 
-export function isImportOrRequireNode(j: any, { callee }: CallExpression): boolean {
+export function isImportOrRequireNode(j: any, {callee}: CallExpression): boolean {
   switch (callee.type) {
     // $FlowFixMe the 'Import' is not yet supported by ast-types-flow
     case 'Import':
@@ -63,7 +63,7 @@ export function isImportOrRequireNode(j: any, { callee }: CallExpression): boole
       return callee.name === 'require';
     case 'MemberExpression':
     // global.require('...') or self.require('...')
-      const { object, property } = callee;
+      const {object, property} = callee;
       if (object.type !== 'Identifier' || property.type !== 'Identifier') {
         // There is a very high chance this is not a require call, let's not
         // even warn or debug about it to avoid confusion.

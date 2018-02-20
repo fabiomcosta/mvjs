@@ -42,6 +42,6 @@ Examples:
 ## TODO
 
 - [x] Allow moving .jsx, .mjs, .es, .es6
+- [x] Allow moving multiple sources to a directory
 - [ ] Allow moving a directory to another directory
-- [ ] Allow moving multiple sources to a directory
 - [ ] Use git or hg to search for the project files (with fallback to the current method)

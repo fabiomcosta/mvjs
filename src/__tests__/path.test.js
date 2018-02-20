@@ -3,7 +3,7 @@
 import {mockDescriptor, createFakeContext} from './utils';
 import {findProjectPath, findAllJSPaths, matchPathStyle, updateSourcePath} from '../path';
 
-mockDescriptor(process, 'cwd', { value: jest.fn() });
+mockDescriptor(process, 'cwd', {value: jest.fn()});
 
 jest.mock('../log', () => {
   const debug = jest.fn();
@@ -87,15 +87,15 @@ describe('updateSourcePath', () => {
   test('debugs about the absolute path', () => {
     // $FlowIgnore $debug only exists because we mocked `log`
     const debug = require('../log').$debug;
-    const context = createFakeContext({ path: '/a/b.js' });
+    const context = createFakeContext({path: '/a/b.js'});
     updateSourcePath(context, '/c/d');
     expect(debug).toHaveBeenCalledWith(`Ignoring absolute path "/c/d" from "/a/b.js".`);
   });
 
   test(`ignores if the absolute import path does NOT match the absolute 'sourcePath'`, () => {
     const context = createFakeContext(
-      { path: '/a/b/c.js' },
-      { absoluteSourcePath: '/a/b/d.js' }
+      {path: '/a/b/c.js'},
+      {movePaths: {'/a/b/d.js': ''}}
     );
     expect(updateSourcePath(context, './e.js')).toBe('./e.js');
   });
@@ -104,8 +104,8 @@ describe('updateSourcePath', () => {
     // $FlowIgnore $debug only exists because we mocked `log`
     const debug = require('../log').$debug;
     const context = createFakeContext(
-      { path: '/a/b/c.js' },
-      { absoluteSourcePath: '/a/b/d.js', absoluteTargetPath: '/a/b/e.js' }
+      {path: '/a/b/c.js'},
+      {movePaths: {'/a/b/d.js': '/a/b/e.js'}}
     );
     expect(updateSourcePath(context, './d')).toBe('./e');
     expect(debug).toHaveBeenCalledWith(`Updating /a/b/c.js: ./d -> ./e`);

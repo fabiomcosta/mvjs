@@ -11,9 +11,8 @@ export type Options = {
   targetPath: string
 };
 
-type NormalizedOptions = {
-  absoluteSourcePaths: Array<string>,
-  absoluteTargetPath: string
+export type NormalizedOptions = {
+  [string]: string
 };
 
 export const SUPPORTED_EXTENSIONS: Set<string> = new Set(['js', 'jsx', 'mjs', 'es', 'es6']);
@@ -33,23 +32,13 @@ async function fsExists(_path: string): Promise<boolean> {
   return true;
 }
 
-async function validatePaths(options: Options): Promise<Options> {
-  const { sourcePaths, targetPath } = options;
-
-  if (sourcePaths.length > 1) {
-    // TODO Support multitple sourcePaths
-    // TODO when allowing multiple sourcePaths, remember that for multiple sourcePaths,
-    // targetPath has to be a folder
-    throw new Error(
-      `Only one "sourcePath" is supported, but multiple were provided: ` +
-      `${sourcePaths.join(', ')}.\nThere are plans to add this functionality.`
-    );
-  }
+async function validateSourcePaths(options: Options): Promise<void> {
+  const {sourcePaths} = options;
 
   // All sourcePaths should exist and should be files
   await sourcePaths
-    .map(_path => ({ _path, stat: fsStat(_path) }))
-    .map(async ({ _path, stat }) => {
+    .map(_path => ({_path, stat: fsStat(_path)}))
+    .map(async ({_path, stat}) => {
       const s = await stat;
       if (!s.isFile()) {
         // TODO Allow moving folders
@@ -60,17 +49,9 @@ async function validatePaths(options: Options): Promise<Options> {
       }
     });
 
-  // The targetPath should not exist
-  const targetStat = await fsExists(targetPath);
-  if (targetStat) {
-    throw new Error(
-      `Target "${targetPath}" already exists.`
-    );
-  }
-
   sourcePaths
-    .map(_path => ({ _path, ext: path.extname(_path) }))
-    .forEach(({ _path, ext }) => {
+    .map(_path => ({_path, ext: path.extname(_path)}))
+    .forEach(({_path, ext}) => {
       if (!SUPPORTED_EXTENSIONS_DOTTED.has(ext)) {
         throw new Error(
           `Can't move "${_path}". Supported extensions: ` +
@@ -78,25 +59,55 @@ async function validatePaths(options: Options): Promise<Options> {
         );
       }
     });
+}
 
-  const targetExt = path.extname(targetPath);
-  if (!SUPPORTED_EXTENSIONS_DOTTED.has(targetExt)) {
-    throw new Error(
-      `Can't move to "${targetPath}". Supported extensions: ` +
-      `${Array.from(SUPPORTED_EXTENSIONS).join(', ')}.`
-    );
+async function validateTargetPath(options: Options): Promise<void> {
+  const {sourcePaths, targetPath} = options;
+  if (sourcePaths.length === 1) {
+    // The targetPath should not exist
+    const targetExists = await fsExists(targetPath);
+    if (targetExists) {
+      throw new Error(
+        `Target "${targetPath}" already exists.`
+      );
+    }
+
+    const targetExt = path.extname(targetPath);
+    if (!SUPPORTED_EXTENSIONS_DOTTED.has(targetExt)) {
+      throw new Error(
+        `Can't move to "${targetPath}". Supported extensions: ` +
+        `${Array.from(SUPPORTED_EXTENSIONS).join(', ')}.`
+      );
+    }
+  } else {
+    // For multiple sourcePaths, targetPath needs to be a folder.
+    const targetStat = await fsStat(targetPath);
+    if (!targetStat.isDirectory()) {
+      throw new Error(
+        `Multiple source paths were provided but "${targetPath}" is not a folder.`
+      );
+    }
   }
-
-  return options;
 }
 
 export async function validate(options: Options): Promise<Options> {
-  return await validatePaths(options);
+  await Promise.all([
+    validateSourcePaths(options),
+    validateTargetPath(options)
+  ]);
+  return options;
 }
 
-export function normalize({sourcePaths, targetPath}: Options): NormalizedOptions {
-  return {
-    absoluteSourcePaths: sourcePaths.map(p => path.resolve(p)),
-    absoluteTargetPath: path.resolve(targetPath)
-  };
+export function normalize(options: Options): NormalizedOptions {
+  const {sourcePaths, targetPath} = options;
+  const resolvedTargetPath = path.resolve(targetPath);
+  if (sourcePaths.length === 1) {
+    return {
+      [path.resolve(sourcePaths[0])]: resolvedTargetPath
+    };
+  }
+  return sourcePaths.reduce((acc, sourcePath) => {
+    acc[path.resolve(sourcePath)] = path.join(resolvedTargetPath, path.basename(sourcePath))
+    return acc;
+  }, {});
 }

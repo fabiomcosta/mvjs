@@ -2,23 +2,39 @@
 
 import '@babel/polyfill';
 import {updateNodePath, isImportOrRequireNode} from './ast';
+import {base64ToObject} from './base64';
+import type {NormalizedOptions} from './options';
 
 export const parser = 'flow';
 
-export type Options = {
-  absoluteSourcePath: string,
-  absoluteTargetPath: string
+export type File = {
+  source: string,
+  path: string
+};
+
+type Options = {
+  movePaths: string
+};
+
+type ParsedOptions = {
+  movePaths: NormalizedOptions
 };
 
 export type Context = {
-  options: Options,
+  options: ParsedOptions,
   j: any,
-  file: any
+  file: File
 };
+
+function parseOptions({movePaths}: Options): ParsedOptions {
+  return {
+    movePaths: base64ToObject(movePaths)
+  };
+}
 
 export default function transformer(file: any, api: any, options: Options) {
   const j = api.jscodeshift;
-  const context = { options, j, file };
+  const context = {j, file, options: parseOptions(options)};
   const transform = j(file.source);
 
   transform
@@ -50,5 +66,5 @@ export default function transformer(file: any, api: any, options: Options) {
       j(path).replaceWith(importDeclaration);
     });
 
-  return transform.toSource({ quote: 'single' });
+  return transform.toSource({quote: 'single'});
 }

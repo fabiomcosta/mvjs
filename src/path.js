@@ -35,17 +35,17 @@ function normalizePath(_path: string): string {
 export function matchPathStyle(_path: string, referencePath: string): string {
 
   const referenceExt = path.extname(referencePath);
-  if (!referenceExt) {
-
-    const pathExt = path.extname(_path);
-    const pathBasename = path.basename(_path, pathExt);
-    const pathDirname = path.dirname(_path);
-
-    // removing extension in case the referencePath doesn't have one
-    return path.join(pathDirname, pathBasename);
+  // referencePath has an extension, let's keep it
+  if (referenceExt) {
+    return _path;
   }
 
-  return _path;
+  // remove extension in case the referencePath doesn't have one
+  const pathExt = path.extname(_path);
+  const pathBasename = path.basename(_path, pathExt);
+  const pathDirname = path.dirname(_path);
+
+  return path.join(pathDirname, pathBasename);
 }
 
 /**
@@ -55,16 +55,39 @@ export function matchPathStyle(_path: string, referencePath: string): string {
  * provided `sourcePath`.
  */
 function getAbsoluteImportSourcePath(context: Context, importSourcePath: string): string {
-  const { file } = context;
+  const {file} = context;
   return requireResolve(
     context,
     path.resolve(path.dirname(file.path), importSourcePath)
   );
 }
 
+function generateSourcePath(
+  context: Context,
+  targetPath: string,
+  importSourcePath: string
+): string {
+
+  const {file} = context;
+
+  // ./src/c.js
+  // a.js b.js
+  // import x from '../a'; -> import x from '../b;
+  const targetImportSourcePath = normalizePath(
+    matchPathStyle(
+      path.relative(path.dirname(file.path), targetPath),
+      importSourcePath
+    )
+  );
+
+  debug(`Updating ${file.path}: ${importSourcePath} -> ${targetImportSourcePath}`);
+
+  return targetImportSourcePath;
+}
+
 export function updateSourcePath(context: Context, importSourcePath: string): string {
 
-  const { file } = context;
+  const {file} = context;
 
   // absolute paths...
   // They are generaly not used "as-is", but there is a babel plugin that
@@ -82,27 +105,19 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
     return importSourcePath;
   }
 
-  const { options: { absoluteSourcePath, absoluteTargetPath } } = context;
-  const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
+  const {options} = context;
 
-  // The importSourcePath is not from the `sourcePath`, ignore it.
-  if (absoluteSourcePath !== absoluteImportSourcePath) {
-    return importSourcePath;
+  for (const sourcePath in options.movePaths) {
+    const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
+    // The importSourcePath is not from the `sourcePath`, ignore it.
+    if (sourcePath !== absoluteImportSourcePath) {
+      continue;
+    }
+    const targetPath = options.movePaths[sourcePath];
+    return generateSourcePath(context, targetPath, importSourcePath);
   }
 
-  // ./src/c.js
-  // a.js b.js
-  // import x from '../a'; -> import x from '../b;
-  const targetImportSourcePath = normalizePath(
-    matchPathStyle(
-      path.relative(path.dirname(file.path), absoluteTargetPath),
-      importSourcePath
-    )
-  );
-
-  debug(`Updating ${file.path}: ${importSourcePath} -> ${targetImportSourcePath}`);
-
-  return targetImportSourcePath;
+  return importSourcePath;
 }
 
 export async function findProjectPath(): Promise<string> {

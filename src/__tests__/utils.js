@@ -9,6 +9,7 @@ import pkg from '../../package.json';
 import type {Context} from '../transform';
 
 const mkdtemp = promisify(fs.mkdtemp);
+const mkdir = promisify(fs.mkdir);
 const writeFile = promisify(fs.writeFile);
 const rimraf = promisify(_rimraf);
 
@@ -28,8 +29,8 @@ export function mockDescriptor(obj: Object, propertyName: string, descriptor: Ob
 export function createFakeContext(file?: Object, options?: Object): Context {
   return {
     j: {},
-    file: { path: '', ...file },
-    options: { absoluteSourcePath: '', absoluteTargetPath: '', ...options }
+    file: {path: '', source: '', ...file},
+    options: {movePaths: {}, ...options}
   };
 }
 
@@ -48,8 +49,12 @@ export async function createTemporaryFs(definition: FsDefinition): Promise<FsDes
       throw new Error(`Paths should be relative, "${_path}" is absolute.`);
     }
     const absolutePath = path.join(tmpFolder, _path);
-    const text = await Promise.resolve(content);
-    await writeFile(absolutePath, text);
+    if (_path.endsWith('/')) {
+      await mkdir(absolutePath);
+    } else {
+      const text = await Promise.resolve(content);
+      await writeFile(absolutePath, text);
+    }
   }
   return {
     root: tmpFolder,
