@@ -25,8 +25,8 @@ It does this by running a codemod on all JavaScript modules inside the project
 
 ## Features
 
-* Your codebase can be using all of the new JavaScript features and even [Flow](https://flow.org/)
-* Same api and simplicity of the as `mv` command
+* Updates files using all of the new JavaScript features and even [Flow](https://flow.org/)
+* Same api and simplicity of the `mv` command
 
 ## Install
 
