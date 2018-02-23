@@ -9,7 +9,9 @@ function updateTemplateLiteralPath(context: Context, templateLiteral: TemplateLi
   const {j, file} = context;
   if (templateLiteral.expressions.length || templateLiteral.quasis.length > 1) {
     return warn(
-      `Cannot transform TemplateLiteral to Literal because it contains expressions.`,
+      `Cannot transform TemplateLiteral to Literal because it contains expressions.\n` +
+      `You might want to update this manually depending on if the files you are moving `+
+      `are also related to this require/import.`,
       {file, loc: templateLiteral.loc}
     );
   }
@@ -41,7 +43,9 @@ export function updateNodePath(context: Context, originalSourcePathNode: Node): 
       return updateTemplateLiteralPath(context, originalSourcePathNode);
   }
   return warn(
-    `Cannot transform anything other than Literals or TemplateLiterals.`,
+    `Cannot transform anything other than Literals or TemplateLiterals.\n` +
+    `You might want to update this manually depending on if the files you are moving `+
+    `are also related to this require/import.`,
     {file, loc: originalSourcePathNode.loc}
   );
 }
