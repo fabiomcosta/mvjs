@@ -3,9 +3,17 @@
 import {basename, dirname, extname} from 'path';
 import {codeFrameColumns} from '@babel/code-frame';
 import debug from 'debug';
+import chalk from 'chalk';
 import pkg from '../package.json';
 import type {Debugger} from 'debug';
 import type {File} from './transform';
+
+// Forces colors. Ideally I'd figure out a way to make colors work when
+// using execFile.
+const c = new chalk.constructor({
+  enabled: true,
+  level: 3
+});
 
 function getPackageNameWithoutNamespace(): string {
   return pkg.name.split('/')[1];
@@ -43,10 +51,10 @@ function createFrame({file, loc}: LogOptions = {}): string {
 
 export function log(msg: string, options?: LogOptions): void {
   // eslint-disable-next-line no-console
-  console.log(`LOG: ${msg}${createFrame(options)}`);
+  console.log(`${c.cyan('LOG:')} ${msg}${createFrame(options)}`);
 }
 
 export function warn(msg: string, options?: LogOptions): void {
   // eslint-disable-next-line no-console
-  console.warn(`WARN: ${msg}${createFrame(options)}`);
+  console.warn(`${c.yellow('WARN:')} ${msg}${createFrame(options)}`);
 }

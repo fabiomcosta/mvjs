@@ -38,6 +38,7 @@
     "@babel/code-frame": "^7.0.0-beta.40",
     "@babel/polyfill": "^7.0.0-beta.40",
     "ast-types-flow": "0.0.7",
+    "chalk": "^2.3.1",
     "debug": "^3.1.0",
     "find-up": "^2.1.0",
     "glob": "^7.1.2",
