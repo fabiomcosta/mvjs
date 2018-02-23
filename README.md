@@ -1,5 +1,5 @@
 <h3 align="center">
-  <img align="center" src="assets/mvjs_logo.png" alt="mvjs logo" width="200" />
+  <img align="center" src="assets/mvjs_logo.png" alt="mvjs logo" width="120" />
 </h3>
 
 <p align="center">
