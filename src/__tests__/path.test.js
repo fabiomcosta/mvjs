@@ -92,6 +92,11 @@ describe('updateSourcePath', () => {
     expect(debug).toHaveBeenCalledWith(`Ignoring absolute path "/c/d" from "/a/b.js".`);
   });
 
+  test(`ignores unsupported extensions`, () => {
+    const context = createFakeContext();
+    expect(updateSourcePath(context, './a/b.css')).toBe('./a/b.css');
+  });
+
   test(`ignores if the absolute import path does NOT match the absolute 'sourcePath'`, () => {
     const context = createFakeContext(
       {path: '/a/b/c.js'},

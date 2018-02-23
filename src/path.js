@@ -6,7 +6,7 @@ import findUp from 'find-up';
 import {promisify} from 'util';
 import requireResolve from './requireResolve';
 import {createDebug, warn} from './log';
-import {SUPPORTED_EXTENSIONS} from './options';
+import {SUPPORTED_EXTENSIONS, SUPPORTED_EXTENSIONS_DOTTED} from './options';
 import type {Context} from './transform';
 
 const debug = createDebug(__filename);
@@ -102,6 +102,12 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
   // Not an absolute path and not a relative path, it's either a built-in
   // module or a dependency, ignore it.
   if (!importSourcePath.startsWith('.')) {
+    return importSourcePath;
+  }
+
+  // Has an unsupported extension, ignore.
+  const importSourcePathExt = path.extname(importSourcePath);
+  if (importSourcePathExt && !SUPPORTED_EXTENSIONS_DOTTED.has(importSourcePathExt)) {
     return importSourcePath;
   }
 

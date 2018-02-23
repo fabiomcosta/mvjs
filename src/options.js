@@ -15,8 +15,10 @@ export type NormalizedOptions = {
   [string]: string
 };
 
-export const SUPPORTED_EXTENSIONS: Set<string> = new Set(['js', 'jsx', 'mjs', 'es', 'es6']);
-const SUPPORTED_EXTENSIONS_DOTTED = new Set(
+export const SUPPORTED_EXTENSIONS: Set<string> = new Set(
+  ['js', 'jsx', 'mjs', 'es', 'es6']
+);
+export const SUPPORTED_EXTENSIONS_DOTTED: Set<string> = new Set(
   [...Array.from(SUPPORTED_EXTENSIONS, ext => `.${ext}`)]
 );
 
