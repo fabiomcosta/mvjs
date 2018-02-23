@@ -1,6 +1,7 @@
 // @flow
 
 import fs from 'fs';
+import type {Stats} from 'fs';
 import path from 'path';
 import {promisify} from 'util';
 
@@ -22,16 +23,16 @@ export const SUPPORTED_EXTENSIONS_DOTTED: Set<string> = new Set(
   [...Array.from(SUPPORTED_EXTENSIONS, ext => `.${ext}`)]
 );
 
-async function fsExists(_path: string): Promise<boolean> {
+async function gracefulFsStat(_path: string): Promise<?Stats> {
   try {
-    await fsStat(_path);
+    return await fsStat(_path);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      return false;
+      // if file doesn't exists return null
+      return null;
     }
     throw error;
   }
-  return true;
 }
 
 async function validateSourcePaths(options: Options): Promise<void> {
@@ -39,24 +40,29 @@ async function validateSourcePaths(options: Options): Promise<void> {
 
   // All sourcePaths should exist and should be files
   await sourcePaths
-    .map(_path => ({_path, stat: fsStat(_path)}))
-    .map(async ({_path, stat}) => {
+    .map(sourcePath => ({sourcePath, stat: gracefulFsStat(sourcePath)}))
+    .forEach(async ({sourcePath, stat}) => {
       const s = await stat;
+      if (!s) {
+        throw new Error(
+          `Source "${sourcePath}" doesn't exist.`
+        );
+      }
       if (!s.isFile()) {
         // TODO Allow moving folders
         throw new Error(
-          `Only files can be moved, and "${_path}" is not a file.\n` +
+          `Only files can be moved, and "${sourcePath}" is not a file.\n` +
           `There are plans to allow moving folders.`
         );
       }
     });
 
   sourcePaths
-    .map(_path => ({_path, ext: path.extname(_path)}))
-    .forEach(({_path, ext}) => {
+    .map(sourcePath => ({sourcePath, ext: path.extname(sourcePath)}))
+    .forEach(({sourcePath, ext}) => {
       if (!SUPPORTED_EXTENSIONS_DOTTED.has(ext)) {
         throw new Error(
-          `Can't move "${_path}". Supported extensions: ` +
+          `Can't move "${sourcePath}". Supported extensions: ` +
           `${Array.from(SUPPORTED_EXTENSIONS).join(', ')}.`
         );
       }
@@ -67,7 +73,7 @@ async function validateTargetPath(options: Options): Promise<void> {
   const {sourcePaths, targetPath} = options;
   if (sourcePaths.length === 1) {
     // The targetPath should not exist
-    const targetExists = await fsExists(targetPath);
+    const targetExists = await gracefulFsStat(targetPath);
     if (targetExists) {
       throw new Error(
         `Target "${targetPath}" already exists.`

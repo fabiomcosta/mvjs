@@ -32,7 +32,7 @@ function createFrame({file, loc}: LogOptions = {}): string {
   if (!file) {
     return '';
   }
-  const frame = codeFrameColumns(file.source, loc, {highlightCode: true});
+  const frame = codeFrameColumns(file.source, loc, {highlightCode: true, forceColor: true});
   return `\nat ${file.path}:\n${frame}`;
 }
 
