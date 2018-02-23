@@ -14,6 +14,9 @@ const {argv} = yargs
   .demandCommand(2)
   .help();
 
+// eslint-disable-next-line no-console
+process.on('unhandledRejection', console.error);
+
 (async () => {
 
   const allNonOptionlArgs = argv._.slice();
