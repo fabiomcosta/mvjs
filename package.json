@@ -13,7 +13,7 @@
     "flow-typed": "flow-typed",
     "lint": "eslint --fix src/",
     "unit": "jest",
-    "prepublishOnly": "rimraf lib/ && npm run build",
+    "prepublishOnly": "rimraf lib/ && npm run build && npm t",
     "build": "babel src/ -d lib/ --copy-files",
     "build:watch": "npm run build -- --watch"
   },
