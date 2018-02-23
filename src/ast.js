@@ -41,8 +41,7 @@ export function updateNodePath(context: Context, originalSourcePathNode: Node): 
       return updateTemplateLiteralPath(context, originalSourcePathNode);
   }
   return warn(
-    `Cannot transform anything other than Literals or TemplateLiterals. ` +
-    `Found ${originalSourcePathNode.type}.`,
+    `Cannot transform anything other than Literals or TemplateLiterals.`,
     {file, loc: originalSourcePathNode.loc}
   );
 }
