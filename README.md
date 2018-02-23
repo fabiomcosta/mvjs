@@ -27,6 +27,7 @@ It does this by running a codemod on all JavaScript modules inside the project
 
 * Updates files using all of the new JavaScript features and even [Flow](https://flow.org/)
 * Same api and simplicity of the `mv` command
+* Shows easy to understand errors when unexpected things happen
 
 ## Install
 
@@ -58,3 +59,4 @@ Examples:
 - [x] Allow moving multiple sources to a directory
 - [ ] Allow moving a directory to another directory
 - [ ] Use git or hg to search for the project files (with fallback to the current method)
+- [ ] Use git or hg to move the files
