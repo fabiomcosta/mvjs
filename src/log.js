@@ -32,6 +32,11 @@ function createFrame({file, loc}: LogOptions = {}): string {
   if (!file) {
     return '';
   }
+  // The column location seems off by one, fixing that.
+  if (loc) {
+    loc.start.column++;
+    loc.end.column++;
+  }
   const frame = codeFrameColumns(file.source, loc, {highlightCode: true, forceColor: true});
   return `\nat ${file.path}:\n${frame}`;
 }
