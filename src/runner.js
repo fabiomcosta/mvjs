@@ -4,7 +4,7 @@ import {execFile} from 'child_process';
 import {promisify} from 'util';
 import path from 'path';
 import fs from 'fs';
-import {createDebug} from './log';
+import {createDebug, info} from './log';
 import {findAllJSPaths, findProjectPath} from './path';
 import {validate, normalize, SUPPORTED_EXTENSIONS} from './options';
 import {objectToBase64} from './base64';
@@ -29,10 +29,12 @@ export async function executeTransform(options: Options): Promise<void> {
   debug('movePaths', JSON.stringify(pathMap, null, 2));
 
   const projectPath = await findProjectPath();
-  debug('Project path', projectPath);
+  info(`Detected project path: ${projectPath}`);
 
   const recastOptions = {quote: 'single', ...options.recastOptions};
-  debug('recastOptions', recastOptions);
+  if (options.recastOptions) {
+    info(`Recast options:\n${JSON.stringify(recastOptions, null, 2)}`);
+  }
 
   const allJSPaths = await findAllJSPaths(projectPath);
   debug('Detected js paths', `\n  ${allJSPaths.join('\n  ')}`);

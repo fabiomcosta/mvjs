@@ -49,9 +49,9 @@ function createFrame({file, loc}: LogOptions = {}): string {
   return `\nat ${file.path}:\n${frame}`;
 }
 
-export function log(msg: string, options?: LogOptions): void {
+export function info(msg: string, options?: LogOptions): void {
   // eslint-disable-next-line no-console
-  console.log(`${c.cyan('LOG:')} ${msg}${createFrame(options)}`);
+  console.info(`${c.cyan('INFO:')} ${msg}${createFrame(options)}`);
 }
 
 export function warn(msg: string, options?: LogOptions): void {
