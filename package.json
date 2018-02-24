@@ -1,7 +1,7 @@
 {
   "name": "@fabiomcosta/mvjs",
   "version": "1.4.0",
-  "description": "Moves JavaScript modules and updates their reference on other modules inside the current project.",
+  "description": "Easily move JavaScript modules.",
   "repository": "https://github.com/fabiomcosta/mvjs",
   "main": "lib/index.js",
   "bin": {
