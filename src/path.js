@@ -1,17 +1,18 @@
 // @flow
 
 import path from 'path';
-import _glob from 'glob';
+import fs from 'fs';
 import findUp from 'find-up';
 import {promisify} from 'util';
 import requireResolve from './requireResolve';
 import {createDebug, warn} from './log';
-import {SUPPORTED_EXTENSIONS, SUPPORTED_EXTENSIONS_DOTTED} from './options';
+import {SUPPORTED_EXTENSIONS_DOTTED} from './options';
 import type {Context} from './transform';
 
 const debug = createDebug(__filename);
 
-const glob = promisify(_glob);
+const readdir = promisify(fs.readdir);
+const stat = promisify(fs.stat);
 
 /**
  * Makes sure a path always starts with a `.` or a `/`.
@@ -136,12 +137,24 @@ export async function findProjectPath(): Promise<string> {
   return path.dirname(projectPackageJson);
 }
 
+const IGNORED_FOLDERS = new Set(['node_modules', '.git', '.hg']);
+
 // TODO: use git and hg to consider ignored files
 // note that the .git and .hg folder would need to match the package.json
 // folder for this work properly.
 export async function findAllJSPaths(rootPath: string): Promise<Array<string>> {
-  // THIS WILL NOT WORK ON WINDOWS
-  const extensions = Array.from(SUPPORTED_EXTENSIONS).join(',');
-  return (await promisify(glob)(`${rootPath}/**/*.{${extensions}}`)).filter(p => !p.includes('node_modules'));
+  const subFiles = await readdir(rootPath);
+  const files = await Promise.all(subFiles.map(async (subFile) => {
+    const res = path.join(rootPath, subFile);
+    if ((await stat(res)).isDirectory()) {
+      if (IGNORED_FOLDERS.has(subFile)) {
+        return null;
+      }
+      return findAllJSPaths(res);
+    } else if (!SUPPORTED_EXTENSIONS_DOTTED.has(path.extname(subFile))) {
+      return null;
+    }
+    return res;
+  }));
+  return files.filter(Boolean).reduce((a, f) => a.concat(f), []);
 }
-

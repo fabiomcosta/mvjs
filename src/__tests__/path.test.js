@@ -1,7 +1,7 @@
 // @flow
 
 import {mockDescriptor, createFakeContext} from './utils';
-import {findProjectPath, findAllJSPaths, matchPathStyle, updateSourcePath} from '../path';
+import {findProjectPath, matchPathStyle, updateSourcePath} from '../path';
 
 mockDescriptor(process, 'cwd', {value: jest.fn()});
 
@@ -40,16 +40,6 @@ describe('findProjectPath', () => {
       `Could not find a "package.json" file on any parent directory, ` +
       `using "/cwd/value" as a fallback.`
     );
-  });
-});
-
-
-jest.mock('glob', () => jest.fn((glob, cb) => cb(null, [glob, '/a/node_modules/b.js', '/c/d.js'])));
-
-describe('findAllJSPaths', () => {
-  test('returns all glob paths filtering out paths containing "node_modules"', async () => {
-    const allJSPaths = await findAllJSPaths('/c');
-    expect(allJSPaths).toEqual(['/c/**/*.{js,jsx,mjs,es,es6}', '/c/d.js']);
   });
 });
 
