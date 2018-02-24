@@ -46,6 +46,8 @@ project.
 
 Options:
   --version  Show version number                                       [boolean]
+  --parser   jscodeshift's parser option. See
+             https://github.com/facebook/jscodeshift#parser    [default: "flow"]
   --help     Show help                                                 [boolean]
 
 Examples:

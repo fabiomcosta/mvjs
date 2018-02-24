@@ -39,10 +39,11 @@ export async function executeTransform(options: Options): Promise<void> {
   );
 
   const cmdArgs = allJSPaths.concat([
-    '--silent',
     '--extensions', Array.from(SUPPORTED_EXTENSIONS).join(','),
     '--transform', path.join(__dirname, 'transform.js'),
-    '--movePaths', objectToBase64(pathMap)
+    '--movePaths', objectToBase64(pathMap),
+    '--parser', options.parser,
+    '--silent'
   ]);
 
   const jscodeshift = execFile(

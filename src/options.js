@@ -9,7 +9,9 @@ const fsStat = promisify(fs.stat);
 
 export type Options = {
   sourcePaths: Array<string>,
-  targetPath: string
+  targetPath: string,
+  // see https://github.com/facebook/jscodeshift#parser
+  parser: 'flow' | 'babylon' | 'babel'
 };
 
 export type NormalizedOptions = {

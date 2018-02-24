@@ -11,6 +11,10 @@ const {argv} = yargs
     `$0 ./a.js ./b.js`,
     `Moves "a.js" to "b.js" and updates the other modules importing "a.js" to now import "b.js".`
   )
+  .option('parser', {
+    describe: `jscodeshift's parser option. See https://github.com/facebook/jscodeshift#parser`,
+    default: 'flow'
+  })
   .demandCommand(2)
   .help();
 
@@ -25,7 +29,8 @@ process.on('unhandledRejection', console.error);
 
   await executeTransform({
     sourcePaths,
-    targetPath
+    targetPath,
+    parser: argv.parser
   });
 
   // eslint-disable-next-line no-console
