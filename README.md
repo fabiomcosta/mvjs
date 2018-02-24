@@ -12,7 +12,7 @@ Moves JavaScript modules and updates their reference on other modules inside the
 
 ## The problem
 
-Moving JavaScript modules inside a project is generaly a tedious task.
+Moving JavaScript modules inside a project is generally a tedious task.
 After you move it using `mv`, you have to update the `import` and `require` from
 the other modules that are referencing the module you just moved.
 
@@ -35,7 +35,7 @@ It does this by running a codemod on all JavaScript modules inside the project
 npm install -g @fabiomcosta/mvjs
 ```
 
-This makes `mvjs` available globaly.
+This makes `mvjs` available globally.
 
 ## Usage
 
