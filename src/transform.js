@@ -1,6 +1,7 @@
 // @flow
 
 import '@babel/polyfill';
+import memoize from 'fast-memoize';
 import {updateNodePath, isImportOrRequireNode} from './ast';
 import {base64ToObject} from './base64';
 import type {NormalizedOptions} from './options';
@@ -26,10 +27,16 @@ export type Context = {
   file: File
 };
 
+// base64ToObject is used once for each transformed file, so caching it gives
+// us a nice perf win.
+const memoizedBase64ToObject = memoize((base64String: string): Object => {
+  return base64ToObject(base64String);
+});
+
 function parseOptions({movePaths, recastOptions}: Options): ParsedOptions {
   return {
-    movePaths: base64ToObject(movePaths),
-    recastOptions: base64ToObject(recastOptions)
+    movePaths: memoizedBase64ToObject(movePaths),
+    recastOptions: memoizedBase64ToObject(recastOptions)
   };
 }
 
