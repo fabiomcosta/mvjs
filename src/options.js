@@ -11,7 +11,9 @@ export type Options = {
   sourcePaths: Array<string>,
   targetPath: string,
   // see https://github.com/facebook/jscodeshift#parser
-  parser: 'flow' | 'babylon' | 'babel'
+  parser: 'flow' | 'babylon' | 'babel',
+  // see https://github.com/benjamn/recast/blob/master/lib/options.js
+  recastOptions: Object
 };
 
 export type NormalizedOptions = {

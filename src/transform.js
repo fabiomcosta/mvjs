@@ -5,19 +5,19 @@ import {updateNodePath, isImportOrRequireNode} from './ast';
 import {base64ToObject} from './base64';
 import type {NormalizedOptions} from './options';
 
-export const parser = 'flow';
-
 export type File = {
   source: string,
   path: string
 };
 
 type Options = {
-  movePaths: string
+  movePaths: string,
+  recastOptions: string
 };
 
 type ParsedOptions = {
-  movePaths: NormalizedOptions
+  movePaths: NormalizedOptions,
+  recastOptions: Object
 };
 
 export type Context = {
@@ -26,9 +26,10 @@ export type Context = {
   file: File
 };
 
-function parseOptions({movePaths}: Options): ParsedOptions {
+function parseOptions({movePaths, recastOptions}: Options): ParsedOptions {
   return {
-    movePaths: base64ToObject(movePaths)
+    movePaths: base64ToObject(movePaths),
+    recastOptions: base64ToObject(recastOptions)
   };
 }
 
@@ -66,5 +67,5 @@ export default function transformer(file: any, api: any, options: Options) {
       j(path).replaceWith(importDeclaration);
     });
 
-  return transform.toSource({quote: 'single'});
+  return transform.toSource(context.options.recastOptions);
 }

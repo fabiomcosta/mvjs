@@ -170,4 +170,15 @@ import './b';`
       expect(await isFile(path.join(cwd, './c/b.js'))).toEqual(true);
     });
   });
+
+  test('forwards recast options', async () => {
+    await createTmpFs({
+      './a.js': '',
+      './modules.js': `import './a.js'`
+    }, async ({cwd, exec}) => {
+      await exec(['--recast.quote="double"', './a.js', './b.js']);
+      expect(await readFileString(path.join(cwd, './modules.js')))
+        .toEqual(`import "./b.js"`);
+    });
+  });
 });

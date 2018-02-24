@@ -31,6 +31,9 @@ export async function executeTransform(options: Options): Promise<void> {
   const projectPath = await findProjectPath();
   debug('Project path', projectPath);
 
+  const recastOptions = {quote: 'single', ...options.recastOptions};
+  debug('recastOptions', recastOptions);
+
   const allJSPaths = await findAllJSPaths(projectPath);
   debug('Detected js paths', `\n  ${allJSPaths.join('\n  ')}`);
 
@@ -41,9 +44,10 @@ export async function executeTransform(options: Options): Promise<void> {
   const cmdArgs = allJSPaths.concat([
     '--extensions', Array.from(SUPPORTED_EXTENSIONS).join(','),
     '--transform', path.join(__dirname, 'transform.js'),
-    '--movePaths', objectToBase64(pathMap),
     '--parser', options.parser,
-    '--silent'
+    '--silent',
+    '--recastOptions', objectToBase64(recastOptions),
+    '--movePaths', objectToBase64(pathMap)
   ]);
 
   const jscodeshift = execFile(
