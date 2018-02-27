@@ -25,6 +25,7 @@ It does this by running a codemod on all JavaScript modules inside the project
 
 ## Features
 
+* Supports and updates `import _ from '...'`, `import('...')` and `require('...')`
 * Updates files using all of the new JavaScript features and even [Flow](https://flow.org/)
 * Same api and simplicity of the `mv` command
 * Shows easy to understand errors when unexpected things happen
