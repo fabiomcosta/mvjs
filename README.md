@@ -38,7 +38,7 @@ npm install -g @fabiomcosta/mvjs
 
 This makes `mvjs` available globally.
 
-## Usage
+## CLI Usage
 
 ```text
 $ mvjs --help
@@ -73,6 +73,36 @@ Examples:
                                               all strings.
                                               See https://github.com/benjamn/recast/blob/master/lib/options.js
 
+```
+
+## API Usage
+
+move (and ONLY move) modules:
+
+```js
+import {move} from '@fabiomcosta/mvjs';
+
+(async () => {
+  await move({
+    sourcePaths: ['./foo.js', './bar.mjs'],
+    targePath: './baz'
+  });
+})();
+```
+
+codemod the import statements from the current project modules:
+
+```js
+import {transform} from '@fabiomcosta/mvjs';
+
+(async () => {
+  await transform({
+    sourcePaths: ['./foo.js', './bar.mjs'],
+    targePath: './baz',
+    parser: 'flow', // optional
+    recastOptions: {quotes: 'single'} // optional
+  });
+})();
 ```
 
 ## TODO
