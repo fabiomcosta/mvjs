@@ -4,31 +4,18 @@ import path from 'path';
 import fs from 'fs';
 import child_process from 'child_process';
 import {promisify} from 'util';
-import {createTemporaryFs} from '../utils';
+import {createTemporaryFs, isFile} from '../utils';
 import type {FsDefinition} from '../utils';
 import type {ChildProcess} from 'child_process';
 
 const exec = promisify(child_process.exec);
 const readFile = promisify(fs.readFile);
-const fsStat = promisify(fs.stat);
 const PROJECT_ROOT = path.join(__dirname, '..', '..', '..');
 
 jest.setTimeout(8000);
 
 async function readFileString(_path: string): Promise<string> {
   return String(await readFile(_path));
-}
-
-async function isFile(_path: string): Promise<boolean> {
-  try {
-    const stat = await fsStat(_path);
-    return stat.isFile();
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return false;
-    }
-    throw error;
-  }
 }
 
 async function _exec(args: Array<string>, cwd=__dirname): Promise<ChildProcess> {
@@ -47,17 +34,16 @@ type TmpFsObject = {
 };
 type TmpFsCallback = (TmpFsObject) => mixed;
 async function createTmpFs(definition: FsDefinition, callback: TmpFsCallback): Promise<void> {
-  const fsDescriptor = await createTemporaryFs({
+  const {cwd} = await createTemporaryFs({
     './package.json': '{}',
     ...definition
   });
   await callback({
-    cwd: fsDescriptor.root,
+    cwd,
     async exec(args: Array<string>): Promise<ChildProcess> {
-      return await _exec(args, fsDescriptor.root);
+      return await _exec(args, cwd);
     }
   });
-  await fsDescriptor.cleanup();
 }
 
 describe('cli', () => {
