@@ -12,8 +12,7 @@ export type File = {
 };
 
 type Options = {
-  movePaths: string,
-  recastOptions: string
+  options: string,
 };
 
 type ParsedOptions = {
@@ -29,15 +28,10 @@ export type Context = {
 
 // base64ToObject is used once for each transformed file, so caching it gives
 // us a nice perf win.
-const memoizedBase64ToObject = memoize((base64String: string): Object => {
-  return base64ToObject(base64String);
-});
+const memoizedBase64ToObject = memoize(base64ToObject);
 
-function parseOptions({movePaths, recastOptions}: Options): ParsedOptions {
-  return {
-    movePaths: memoizedBase64ToObject(movePaths),
-    recastOptions: memoizedBase64ToObject(recastOptions)
-  };
+function parseOptions({options}: Options): ParsedOptions {
+  return memoizedBase64ToObject(options);
 }
 
 export default function transformer(file: any, api: any, options: Options) {

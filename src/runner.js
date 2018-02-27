@@ -39,6 +39,11 @@ export async function executeTransform(options: Options): Promise<void> {
   const allJSPaths = await findAllJSPaths(projectPath);
   debug('Detected js paths', `\n  ${allJSPaths.join('\n  ')}`);
 
+  const transformOptions = {
+    recastOptions: recastOptions,
+    movePaths: pathMap
+  };
+
   const jscodeshiftBin = path.join(
     __dirname, '..', 'node_modules', '.bin', 'jscodeshift'
   );
@@ -48,14 +53,10 @@ export async function executeTransform(options: Options): Promise<void> {
     '--transform', path.join(__dirname, 'transform.js'),
     '--parser', options.parser,
     '--silent',
-    '--recastOptions', objectToBase64(recastOptions),
-    '--movePaths', objectToBase64(pathMap)
+    '--options', objectToBase64(transformOptions)
   ]);
 
-  const jscodeshift = execFile(
-    jscodeshiftBin,
-    cmdArgs
-  );
+  const jscodeshift = execFile(jscodeshiftBin, cmdArgs);
   /* eslint-disable no-console */
   jscodeshift.stdout.on('data', console.log);
   jscodeshift.stderr.on('data', console.error);
