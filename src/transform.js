@@ -4,7 +4,7 @@ import '@babel/polyfill';
 import memoize from 'fast-memoize';
 import {updateNodePath, isImportOrRequireNode} from './ast';
 import {base64ToObject} from './base64';
-import type {NormalizedOptions} from './options';
+import type {PathMap} from './options';
 
 export type File = {
   source: string,
@@ -16,7 +16,7 @@ type Options = {
 };
 
 type ParsedOptions = {
-  movePaths: NormalizedOptions,
+  movePaths: PathMap,
   recastOptions: Object
 };
 

@@ -7,16 +7,12 @@ import {promisify} from 'util';
 
 const fsStat = promisify(fs.stat);
 
-export type Options = {
+export type MoveOptions = {
   sourcePaths: Array<string>,
   targetPath: string,
-  // see https://github.com/facebook/jscodeshift#parser
-  parser: 'flow' | 'babylon' | 'babel',
-  // see https://github.com/benjamn/recast/blob/master/lib/options.js
-  recastOptions: Object
 };
 
-export type NormalizedOptions = {
+export type PathMap = {
   [string]: string
 };
 
@@ -26,6 +22,11 @@ export const SUPPORTED_EXTENSIONS: Set<string> = new Set(
 export const SUPPORTED_EXTENSIONS_DOTTED: Set<string> = new Set(
   [...Array.from(SUPPORTED_EXTENSIONS, ext => `.${ext}`)]
 );
+
+export const DEFAULT = {
+  parser: 'flow',
+  recast: {quote: 'single'}
+};
 
 async function gracefulFsStat(_path: string): Promise<?Stats> {
   try {
@@ -39,7 +40,7 @@ async function gracefulFsStat(_path: string): Promise<?Stats> {
   }
 }
 
-async function validateSourcePaths(options: Options): Promise<void> {
+async function validateSourcePaths(options: MoveOptions): Promise<void> {
   const {sourcePaths} = options;
 
   // All sourcePaths should exist and should be files
@@ -73,7 +74,7 @@ async function validateSourcePaths(options: Options): Promise<void> {
     });
 }
 
-async function validateTargetPath(options: Options): Promise<void> {
+async function validateTargetPath(options: MoveOptions): Promise<void> {
   const {sourcePaths, targetPath} = options;
   if (sourcePaths.length === 1) {
     // The targetPath should not exist
@@ -102,7 +103,7 @@ async function validateTargetPath(options: Options): Promise<void> {
   }
 }
 
-export async function validate(options: Options): Promise<Options> {
+export async function validate(options: MoveOptions): Promise<MoveOptions> {
   await Promise.all([
     validateSourcePaths(options),
     validateTargetPath(options)
@@ -110,7 +111,7 @@ export async function validate(options: Options): Promise<Options> {
   return options;
 }
 
-export function normalize(options: Options): NormalizedOptions {
+export function normalize(options: MoveOptions): PathMap {
   const {sourcePaths, targetPath} = options;
   const resolvedTargetPath = path.resolve(targetPath);
   if (sourcePaths.length === 1) {

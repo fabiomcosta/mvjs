@@ -1,37 +1,38 @@
 // @flow
 
 import {execFile} from 'child_process';
-import {promisify} from 'util';
 import path from 'path';
-import fs from 'fs';
 import {createDebug, info} from './log';
 import {findAllJSPaths, findProjectPath} from './path';
-import {validate, normalize, SUPPORTED_EXTENSIONS} from './options';
 import {objectToBase64} from './base64';
-import type {Options, NormalizedOptions} from './options';
+import {validate, normalize, DEFAULT, SUPPORTED_EXTENSIONS} from './options';
+import type {MoveOptions, PathMap} from './options';
 
 const debug = createDebug(__filename);
-const rename = promisify(fs.rename);
 
-async function movePaths(pathMap: NormalizedOptions): Promise<void> {
-  await Promise.all(
-    Object.entries(pathMap)
-      .map(([sourcePath, targetPath]) => rename(sourcePath, targetPath))
-  );
-}
+type TransformOptions = {
+  // see https://github.com/facebook/jscodeshift#parser
+  parser?: 'flow' | 'babylon' | 'babel',
+  // see https://github.com/benjamn/recast/blob/master/lib/options.js
+  recastOptions?: Object
+};
 
-export async function executeTransform(options: Options): Promise<void> {
+type NormalizedOptions = {
+  movePaths: PathMap
+} & TransformOptions;
 
-  debug('sourcePaths', options.sourcePaths.join(' '));
-  debug('targetPath', options.targetPath);
+export async function executeTransform(options: NormalizedOptions): Promise<void> {
 
-  const pathMap = normalize(await validate(options));
-  debug('movePaths', JSON.stringify(pathMap, null, 2));
+  const {movePaths} = options;
+  debug('movePaths', JSON.stringify(movePaths, null, 2));
 
   const projectPath = await findProjectPath();
   info(`Detected project path: ${projectPath}`);
 
-  const recastOptions = {quote: 'single', ...options.recastOptions};
+  const recastOptions = {...DEFAULT.recast, ...options.recastOptions};
+  // I'm considering that when there are no recast options it's because the
+  // user doesn't care much about these options, so we only log them when
+  // any recast option is passed.
   if (options.recastOptions) {
     info(`Recast options:\n${JSON.stringify(recastOptions, null, 2)}`);
   }
@@ -40,8 +41,8 @@ export async function executeTransform(options: Options): Promise<void> {
   debug('Detected js paths', `\n  ${allJSPaths.join('\n  ')}`);
 
   const transformOptions = {
-    recastOptions: recastOptions,
-    movePaths: pathMap
+    recastOptions,
+    movePaths
   };
 
   const jscodeshiftBin = path.join(
@@ -51,18 +52,25 @@ export async function executeTransform(options: Options): Promise<void> {
   const cmdArgs = allJSPaths.concat([
     '--extensions', Array.from(SUPPORTED_EXTENSIONS).join(','),
     '--transform', path.join(__dirname, 'transform.js'),
-    '--parser', options.parser,
+    '--parser', options.parser || DEFAULT.parser,
     '--silent',
     '--options', objectToBase64(transformOptions)
   ]);
 
   const jscodeshift = execFile(jscodeshiftBin, cmdArgs);
-  /* eslint-disable no-console */
-  jscodeshift.stdout.on('data', console.log);
-  jscodeshift.stderr.on('data', console.error);
-  /* eslint-enable no-console */
-  jscodeshift.on('close', async () => {
-    await movePaths(pathMap);
+  jscodeshift.stdout.on('data', process.stdout.write);
+  jscodeshift.stderr.on('data', process.stderr.write);
+  // Making sure the caller awaits until the jscodeshift process closes.
+  return await new Promise(res => {
+    jscodeshift.on('close', res);
   });
 }
 
+type Options = MoveOptions & TransformOptions;
+
+export async function transform(options: Options): Promise<void> {
+  await executeTransform({
+    ...options,
+    movePaths: normalize(await validate(options))
+  });
+}

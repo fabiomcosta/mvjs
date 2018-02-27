@@ -4,6 +4,11 @@
 
 import yargs from 'yargs';
 import {executeTransform} from './runner';
+import {movePaths} from './move';
+import {validate, normalize, DEFAULT} from './options';
+import {createDebug} from './log';
+
+const debug = createDebug(__filename);
 
 const {argv} = yargs
   .wrap(Math.min(120, yargs.terminalWidth()))
@@ -20,7 +25,7 @@ const {argv} = yargs
   )
   .option('parser', {
     describe: `jscodeshift's parser option.\nSee https://github.com/facebook/jscodeshift#parser`,
-    default: 'flow'
+    default: DEFAULT.parser
   })
   .demandCommand(2)
   .help();
@@ -31,16 +36,21 @@ process.on('unhandledRejection', console.error);
 (async () => {
 
   const allNonOptionlArgs = argv._.slice();
-  const targetPath = allNonOptionlArgs.pop()
+  const targetPath = allNonOptionlArgs.pop();
   const sourcePaths = allNonOptionlArgs;
+  debug('sourcePaths', sourcePaths.join(' '));
+  debug('targetPath', targetPath);
 
-
-  await executeTransform({
+  const movePathMap = normalize(await validate({
     sourcePaths,
-    targetPath,
+    targetPath
+  }));
+  const transformOptions = {
+    movePaths: movePathMap,
     parser: argv.parser,
     recastOptions: argv.recast
-  });
+  };
+  await executeTransform(transformOptions);
+  await movePaths(movePathMap);
 
-  // eslint-disable-next-line no-console
-})().catch(console.error);
+})().catch(process.stderr.write);
