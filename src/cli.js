@@ -5,8 +5,9 @@
 import yargs from 'yargs';
 import {executeTransform} from './runner';
 import {movePaths} from './move';
-import {validate, normalize, DEFAULT} from './options';
+import {validate, createMovePaths, DEFAULT} from './options';
 import {createDebug} from './log';
+import {expandDirectoryPaths} from './path';
 
 const debug = createDebug(__filename);
 
@@ -30,27 +31,29 @@ const {argv} = yargs
   .demandCommand(2)
   .help();
 
-// eslint-disable-next-line no-console
-process.on('unhandledRejection', console.error);
+process.on('unhandledRejection', e => {
+  const errStringRep = e ? e.stack ? e.stack : e.message : '<undefined-error>';
+  process.stderr.write(errStringRep);
+});
 
-(async () => {
-
+async function main() {
   const allNonOptionlArgs = argv._.slice();
   const targetPath = allNonOptionlArgs.pop();
   const sourcePaths = allNonOptionlArgs;
   debug('sourcePaths', sourcePaths.join(' '));
   debug('targetPath', targetPath);
 
-  const movePathMap = normalize(await validate({
+  const movePathMap = createMovePaths(await validate({
     sourcePaths,
     targetPath
   }));
   const transformOptions = {
-    movePaths: movePathMap,
+    expandedPaths: await expandDirectoryPaths(movePathMap),
     parser: argv.parser,
     recastOptions: argv.recast
   };
   await executeTransform(transformOptions);
   await movePaths(movePathMap);
+}
 
-})().catch(process.stderr.write);
+main();

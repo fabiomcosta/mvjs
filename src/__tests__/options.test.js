@@ -1,14 +1,14 @@
 // @flow
 
 import path from 'path';
-import {normalize} from '../options';
+import {createMovePaths} from '../options';
 
 const join = path.join.bind(path, process.cwd());
 
 describe('normalize', () => {
 
   test('renames one file sourcePath to its targetPaths', async () => {
-    const pathMap = normalize({
+    const pathMap = createMovePaths({
       sourcePaths: ['./foo.js'],
       targetPath: './bar.js'
     });
@@ -18,7 +18,7 @@ describe('normalize', () => {
   });
 
   test('renames one directory sourcePath to its targetPaths', async () => {
-    const pathMap = normalize({
+    const pathMap = createMovePaths({
       sourcePaths: ['./a/s/d'],
       targetPath: './baz'
     });
@@ -28,7 +28,7 @@ describe('normalize', () => {
   });
 
   test('normalizes sourcePaths and targetPaths into a PathMap', async () => {
-    const pathMap = normalize({
+    const pathMap = createMovePaths({
       sourcePaths: ['./foo.js', './a/bar.js', './a/s/d'],
       targetPath: './baz'
     });

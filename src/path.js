@@ -8,6 +8,7 @@ import requireResolve from './requireResolve';
 import {createDebug, warn} from './log';
 import {SUPPORTED_EXTENSIONS_DOTTED} from './options';
 import type {Context} from './transform';
+import type {PathMap} from './options';
 
 const debug = createDebug(__filename);
 
@@ -15,7 +16,7 @@ const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 
 /**
- * Makes sure a path always starts with a `.` or a `/`.
+ * Makes sure a path always starts with `/` or `./`.
  * Ex: a.js -> ./a.js
  */
 function normalizePath(_path: string): string {
@@ -114,13 +115,13 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
 
   const {options} = context;
 
-  for (const sourcePath in options.movePaths) {
+  for (const sourcePath in options.expandedPaths) {
     const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
     // The importSourcePath is not from the `sourcePath`, ignore it.
     if (sourcePath !== absoluteImportSourcePath) {
       continue;
     }
-    const targetPath = options.movePaths[sourcePath];
+    const targetPath = options.expandedPaths[sourcePath];
     return generateSourcePath(context, targetPath, importSourcePath);
   }
 
@@ -139,9 +140,9 @@ export async function findProjectPath(): Promise<string> {
 
 const IGNORED_FOLDERS = new Set(['node_modules', '.git', '.hg']);
 
-// TODO: use git and hg to consider ignored files
-// note that the .git and .hg folder would need to match the package.json
-// folder for this work properly.
+// TODO: use `git ls-files` and `hg manifest` to consider ignored files.
+// Note that the .git and .hg folder would need to match the package.json
+// folder for this to work properly.
 export async function findAllJSPaths(rootPath: string): Promise<Array<string>> {
   const subFiles = await readdir(rootPath);
   const files = await Promise.all(subFiles.map(async (subFile) => {
@@ -157,4 +158,34 @@ export async function findAllJSPaths(rootPath: string): Promise<Array<string>> {
     return res;
   }));
   return files.filter(Boolean).reduce((a, f) => a.concat(f), []);
+}
+
+/**
+ * Expands directory sourcePaths into its children files with supported
+ * file extensions.
+ * Ex:
+ * <-
+ * { '/foo/bar': '/foo/bar/baz' }
+ * ->
+ * {
+ *   '/foo/bar/a.js': '/foo/bar/baz/a.js',
+ *   '/foo/bar/b/c.js': '/foo/bar/baz/b/c.js'
+ * }
+ */
+export async function expandDirectoryPaths(pathMap: PathMap): Promise<PathMap> {
+  return await Object.keys(pathMap)
+    .map(sourcePath => ({sourcePath, stat: stat(sourcePath)}))
+    .reduce(async (_acc, {sourcePath, stat}) => {
+      const acc = await _acc;
+      if ((await stat).isDirectory()) {
+        const allDescendants = await findAllJSPaths(sourcePath);
+        const targetPath = pathMap[sourcePath];
+        allDescendants.forEach(descendant => {
+          acc[descendant] = path.join(targetPath, path.relative(sourcePath, descendant));
+        });
+      } else {
+        acc[sourcePath] = pathMap[sourcePath];
+      }
+      return acc;
+    }, Promise.resolve({}));
 }

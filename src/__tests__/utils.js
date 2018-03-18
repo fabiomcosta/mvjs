@@ -1,19 +1,16 @@
 // @flow
 
 import fs from 'fs';
+import fse from 'fs-extra';
 import os from 'os';
 import path from 'path';
-import _mkdirp from 'mkdirp';
-import _rimraf from 'rimraf';
 import {promisify} from 'util';
 import pkg from '../../package.json';
 import type {Context} from '../transform';
 
 const mkdtemp = promisify(fs.mkdtemp);
-const mkdirp = promisify(_mkdirp);
 const writeFile = promisify(fs.writeFile);
 const fsStat = promisify(fs.stat);
-const rimraf = promisify(_rimraf);
 
 export function mockDescriptor(obj: Object, propertyName: string, descriptor: Object): void {
   let currentDescriptor;
@@ -32,7 +29,7 @@ export function createFakeContext(file?: Object, options?: Object): Context {
   return {
     j: {},
     file: {path: '', source: '', ...file},
-    options: {movePaths: {}, ...options}
+    options: {expandedPaths: {}, ...options}
   };
 }
 
@@ -53,16 +50,16 @@ export async function createTemporaryFs(definition: FsDefinition): Promise<FsDes
       }
       const absolutePath = path.join(tmpFolder, _path);
       if (_path.endsWith('/')) {
-        await mkdirp(absolutePath);
+        await fse.mkdirp(absolutePath);
       } else {
-        await mkdirp(path.dirname(absolutePath));
+        await fse.mkdirp(path.dirname(absolutePath));
         const text = await Promise.resolve(content);
         await writeFile(absolutePath, text);
       }
     }));
 
   // TODO: also remove when user exits with ctrl+c and other corner cases
-  process.on('exit', () => rimraf.sync(tmpFolder));
+  process.on('exit', () => fse.removeSync(tmpFolder));
   return {
     cwd: tmpFolder
   };

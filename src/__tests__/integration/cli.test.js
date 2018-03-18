@@ -10,7 +10,7 @@ import type {ChildProcess} from 'child_process';
 
 const exec = promisify(child_process.exec);
 const readFile = promisify(fs.readFile);
-const PROJECT_ROOT = path.join(__dirname, '..', '..', '..');
+const PROJECT_ROOT = path.resolve(path.join(__dirname, '..', '..', '..'));
 
 jest.setTimeout(8000);
 
@@ -165,6 +165,21 @@ import './b';`
       await exec(['--recast.quote="double"', './a.js', './b.js']);
       expect(await readFileString(path.join(cwd, './modules.js')))
         .toEqual(`import "./b.js"`);
+    });
+  });
+
+  test('moves a source folder, and its files, to another folder', async () => {
+    await createTmpFs({
+      './a/foo.js': '',
+      './a/b/bar.js': '',
+      './modules.js': `import './a/foo.js'; import './a/b/bar.js';`
+    }, async ({cwd, exec}) => {
+      const join = path.join.bind(path, cwd);
+      await exec(['./a', './c/d']);
+      expect(await readFileString(join('./modules.js')))
+        .toEqual(`import './c/d/foo.js'; import './c/d/b/bar.js';`);
+      expect(await isFile(join('./c/d/foo.js'))).toEqual(true);
+      expect(await isFile(join('./c/d/b/bar.js'))).toEqual(true);
     });
   });
 });

@@ -1,14 +1,14 @@
 // @flow
 
-import {mockDescriptor, createFakeContext} from './utils';
-import {findProjectPath, matchPathStyle, updateSourcePath} from '../path';
+import path from 'path';
+import {mockDescriptor, createFakeContext, createTemporaryFs} from './utils';
+import {findProjectPath, matchPathStyle, updateSourcePath, expandDirectoryPaths} from '../path';
 
 mockDescriptor(process, 'cwd', {value: jest.fn()});
 
 jest.mock('../log', () => {
   const debug = jest.fn();
   return {
-    $debug: debug,
     warn: jest.fn(),
     createDebug: () => debug
   };
@@ -75,8 +75,7 @@ describe('updateSourcePath', () => {
   });
 
   test('debugs about the absolute path', () => {
-    // $FlowIgnore $debug only exists because we mocked `log`
-    const debug = require('../log').$debug;
+    const debug = require('../log').createDebug('');
     const context = createFakeContext({path: '/a/b.js'});
     updateSourcePath(context, '/c/d');
     expect(debug).toHaveBeenCalledWith(`Ignoring absolute path "/c/d" from "/a/b.js".`);
@@ -90,20 +89,43 @@ describe('updateSourcePath', () => {
   test(`ignores if the absolute import path does NOT match the absolute 'sourcePath'`, () => {
     const context = createFakeContext(
       {path: '/a/b/c.js'},
-      {movePaths: {'/a/b/d.js': ''}}
+      {expandedPaths: {'/a/b/d.js': ''}}
     );
     expect(updateSourcePath(context, './e.js')).toBe('./e.js');
   });
 
   test(`updates the sourcePath`, () => {
-    // $FlowIgnore $debug only exists because we mocked `log`
-    const debug = require('../log').$debug;
+    const debug = require('../log').createDebug('');
     const context = createFakeContext(
       {path: '/a/b/c.js'},
-      {movePaths: {'/a/b/d.js': '/a/b/e.js'}}
+      {expandedPaths: {'/a/b/d.js': '/a/b/e.js'}}
     );
     expect(updateSourcePath(context, './d')).toBe('./e');
     expect(debug).toHaveBeenCalledWith(`Updating /a/b/c.js: ./d -> ./e`);
   });
 
 });
+
+
+describe('expandDirectoryPaths', () => {
+  it('expands folder paths into descendant file paths', async () => {
+    const {cwd} = await createTemporaryFs({
+      './foo.js': '',
+      './foo/bar.js': '',
+      './foo/baz.js': '',
+      './foo/bar/baz.js': ''
+    });
+    const join = path.join.bind(path, cwd);
+    const pathMap = {
+      [join('./foo.js')]: join('./fuu/buz/foo/foo.js'),
+      [join('./foo')]: join('./fuu/buz/foo')
+    };
+    expect(await expandDirectoryPaths(pathMap)).toEqual({
+      [join('./foo.js')]: join('./fuu/buz/foo/foo.js'),
+      [join('./foo/bar.js')]: join('./fuu/buz/foo/bar.js'),
+      [join('./foo/baz.js')]: join('./fuu/buz/foo/baz.js'),
+      [join('./foo/bar/baz.js')]: join('./fuu/buz/foo/bar/baz.js')
+    });
+  });
+});
+
