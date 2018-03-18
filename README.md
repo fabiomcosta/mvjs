@@ -13,8 +13,8 @@ Moves JavaScript modules and updates their reference on other modules inside the
 ## The problem
 
 Moving JavaScript modules inside a project is generally a tedious task.
-After you move it using `mv`, you have to update the `import` and `require` from
-the other modules that are referencing the module you just moved.
+After you move it using `mv`, you have to update their references on the
+other modules inside your project.
 
 `mvjs` moves the module and also updates all its references on the other modules
 making the task of moving modules much simpler, similarly to using `mv`.
@@ -26,7 +26,8 @@ It does this by running a codemod on all JavaScript modules inside the project
 ## Features
 
 * Supports and updates `import _ from '...'`, `import('...')` and `require('...')`
-* Updates files using all of the new JavaScript features and even [Flow](https://flow.org/)
+* Updates files using all of the new JavaScript features and even [Flow](https://flow.org/) annotations
+* Moves individual JS modules as well as directories containing modules
 * Same api and simplicity of the `mv` command
 * Shows easy to understand errors when unexpected things happen
 
