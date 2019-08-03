@@ -35,11 +35,11 @@
   "author": "Fabio Miranda Costa",
   "license": "MIT",
   "dependencies": {
-    "@babel/code-frame": "^7.0.0",
-    "@babel/polyfill": "^7.0.0",
+    "@babel/code-frame": "^7.5.5",
+    "@babel/polyfill": "^7.4.4",
     "ast-types-flow": "0.0.7",
-    "chalk": "^2.4.1",
-    "debug": "^3.2.5",
+    "chalk": "^2.4.2",
+    "debug": "^3.2.6",
     "fast-memoize": "^2.5.1",
     "find-up": "^2.1.0",
     "fs-extra": "^5.0.0",
@@ -47,12 +47,12 @@
     "yargs": "^11.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/node": "^7.0.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
-    "@babel/preset-env": "^7.1.0",
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/preset-env": "^7.5.5",
     "@babel/preset-flow": "^7.0.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.6",
@@ -60,9 +60,9 @@
     "eslint": "^4.19.1",
     "eslint-plugin-babel": "^4.1.2",
     "eslint-plugin-flowtype": "^2.50.3",
-    "eslint-plugin-jest": "^21.23.0",
+    "eslint-plugin-jest": "^21.27.2",
     "flow-bin": "^0.66.0",
-    "flow-typed": "^2.5.1",
+    "flow-typed": "^2.6.1",
     "jest": "^22.4.4"
   }
 }
