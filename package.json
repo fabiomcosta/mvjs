@@ -43,7 +43,7 @@
     "fast-memoize": "^2.5.1",
     "find-up": "^2.1.0",
     "fs-extra": "^5.0.0",
-    "jscodeshift": "^0.4.1",
+    "jscodeshift": "^0.6.4",
     "yargs": "^11.1.0"
   },
   "devDependencies": {
