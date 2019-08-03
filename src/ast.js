@@ -28,7 +28,7 @@ function updateLiteralPath(context: Context, literal: Literal): Literal {
   if (typeof literal.value !== 'string') {
     throw new Error(
       `Cannot transform Literal because its value is not a string.\n` +
-      `Found ${JSON.stringify(literal.value)} of type "${typeof literal.value}".`
+      `Found ${String(JSON.stringify(literal.value))} of type "${typeof literal.value}".`
     );
   }
   return j.literal(updateSourcePath(context, literal.value));

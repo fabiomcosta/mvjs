@@ -7,6 +7,10 @@
   "bin": {
     "mvjs": "lib/cli.js"
   },
+  "engines": {
+    "node": "^10.0.0",
+    "npm": "^6.0.0"
+  },
   "scripts": {
     "test": "npm run lint && npm run flow && npm run unit",
     "flow": "flow",
@@ -36,33 +40,31 @@
   "license": "MIT",
   "dependencies": {
     "@babel/code-frame": "^7.5.5",
-    "@babel/polyfill": "^7.4.4",
     "ast-types-flow": "0.0.7",
     "chalk": "^2.4.2",
-    "debug": "^3.2.6",
+    "core-js": "^3.1.4",
+    "debug": "^4.1.1",
     "fast-memoize": "^2.5.1",
-    "find-up": "^2.1.0",
-    "fs-extra": "^5.0.0",
+    "find-up": "^4.1.0",
+    "fs-extra": "^8.1.0",
     "jscodeshift": "^0.6.4",
-    "yargs": "^11.1.0"
+    "yargs": "^13.3.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",
     "@babel/node": "^7.5.5",
-    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-flow": "^7.0.0",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^8.2.6",
-    "babel-jest": "^22.4.4",
-    "eslint": "^4.19.1",
-    "eslint-plugin-babel": "^4.1.2",
-    "eslint-plugin-flowtype": "^2.50.3",
-    "eslint-plugin-jest": "^21.27.2",
-    "flow-bin": "^0.66.0",
+    "babel-eslint": "^10.0.2",
+    "babel-jest": "^24.8.0",
+    "eslint": "^6.1.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "eslint-plugin-flowtype": "^3.13.0",
+    "eslint-plugin-jest": "^22.14.1",
+    "flow-bin": "^0.104.0",
     "flow-typed": "^2.6.1",
-    "jest": "^22.4.4"
+    "jest": "^24.8.0"
   }
 }

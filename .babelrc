@@ -2,11 +2,12 @@
   "presets": [
     "@babel/preset-flow",
     ["@babel/preset-env", {
+      "useBuiltIns": "usage",
+      "corejs": 3,
       "targets": {"node": "current"}
     }]
   ],
   "plugins": [
-    ["@babel/plugin-proposal-object-rest-spread", { "useBuiltIns": true }],
     "@babel/plugin-syntax-dynamic-import"
   ]
 }

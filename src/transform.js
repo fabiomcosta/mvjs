@@ -1,6 +1,5 @@
 // @flow
 
-import '@babel/polyfill';
 import memoize from 'fast-memoize';
 import {updateNodePath, isImportOrRequireNode} from './ast';
 import {base64ToObject} from './base64';
