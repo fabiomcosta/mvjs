@@ -79,38 +79,34 @@ function generateRelativeNormalizedPath(sourcePath: string, targetPath: string, 
 }
 
 function generateSourcePathForExternalModule(
-  context: Context,
+  sourcePath: string,
   targetPath: string,
   importSourcePath: string
 ): string {
 
-  const {file} = context;
-
   // On file `./src/c.js`
   // When moving `a.js` to `b.js`
   // import x from '../a'; -> import x from '../b;
-  const targetImportSourcePath = generateRelativeNormalizedPath(file.path, targetPath, importSourcePath);
+  const targetImportSourcePath = generateRelativeNormalizedPath(sourcePath, targetPath, importSourcePath);
 
-  debug(`Updating ${file.path}: ${importSourcePath} -> ${targetImportSourcePath}`);
+  debug(`Updating ${sourcePath}: ${importSourcePath} -> ${targetImportSourcePath}`);
 
   return targetImportSourcePath;
 }
 
 function generateSourcePathForMovedModule(
-  context: Context,
+  sourcePath: string,
   targetPath: string,
   importSourcePath: string,
   absoluteImportPath: string
 ): string {
-
-  const {file} = context;
 
   // On file `./c.js`
   // When moving `./c.js` to `./src/c.js`
   // import x from './a'; -> import x from '../a';
   const targetImportSourcePath = generateRelativeNormalizedPath(targetPath, absoluteImportPath, importSourcePath);
 
-  debug(`Updating ${file.path}: ${importSourcePath} -> ${targetImportSourcePath}`);
+  debug(`Updating ${sourcePath}: ${importSourcePath} -> ${targetImportSourcePath}`);
 
   return targetImportSourcePath;
 }
@@ -142,21 +138,20 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
   }
 
   const {options} = context;
+  const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
 
-  for (const sourcePath in options.expandedPaths) {
-    const targetPath = options.expandedPaths[sourcePath];
-    const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
+  // The current transformed file is being moved, we need to update its imports
+  if (options.expandedPaths.hasOwnProperty(file.path)) {
+    const currentFileTargetPath = options.expandedPaths[file.path];
+    const absoluteImportPath = options.expandedPaths[absoluteImportSourcePath] || absoluteImportSourcePath;
+    return generateSourcePathForMovedModule(file.path, currentFileTargetPath, importSourcePath, absoluteImportPath);
+  }
 
-    // `sourcePath` matches the file being transformed, update path accordingly
-    if (sourcePath === file.path) {
-      const absoluteImportPath = options.expandedPaths[absoluteImportSourcePath] || absoluteImportSourcePath;
-      return generateSourcePathForMovedModule(context, targetPath, importSourcePath, absoluteImportPath);
-    }
-
-    // `importSourcePath` matches the `sourcePath`
-    if (sourcePath === absoluteImportSourcePath) {
-      return generateSourcePathForExternalModule(context, targetPath, importSourcePath);
-    }
+  // The import contains a path to a file that is being moved
+  if (options.expandedPaths.hasOwnProperty(absoluteImportSourcePath)) {
+    const currentFileTargetPath = options.expandedPaths[file.path] || file.path;
+    const targetPath = options.expandedPaths[absoluteImportSourcePath];
+    return generateSourcePathForExternalModule(currentFileTargetPath, targetPath, importSourcePath);
   }
 
   return importSourcePath;

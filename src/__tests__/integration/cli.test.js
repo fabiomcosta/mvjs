@@ -131,12 +131,23 @@ import './b';`
 
   test('when moving multiple files, uses the destination path to update paths on the moved modules', async () => {
     await createTmpFs({
+      './b.js': '',
       './other/a1.js': '',
       './folder/': '',
-      './a.js': `import './other/a1';`
+      './a.js': `import './other/a1'; import './b';`
     }, async ({cwd, exec}) => {
       await exec(['./a.js', './other/a1.js', './folder/']);
-      expect(await readFileString(path.join(cwd, './folder/a.js'))).toEqual(`import './a1';`);
+      expect(await readFileString(path.join(cwd, './folder/a.js'))).toEqual(`import './a1'; import '../b';`);
+    });
+  });
+
+  test('when moving folder, uses the destination path to update paths on the moved modules', async () => {
+    await createTmpFs({
+      './source/level/a1.js': `import '../a2';`,
+      './source/a2.js': ''
+    }, async ({cwd, exec}) => {
+      await exec(['./source', './target/']);
+      expect(await readFileString(path.join(cwd, './target/level/a1.js'))).toEqual(`import '../a2';`);
     });
   });
 
