@@ -9,6 +9,7 @@ import {createDebug, warn} from './log';
 import {SUPPORTED_EXTENSIONS_DOTTED, type PathMap} from './options';
 import type {Context} from './transform';
 
+const {hasOwnProperty} = Object.prototype;
 const debug = createDebug(__filename);
 
 const readdir = promisify(fs.readdir);
@@ -144,14 +145,14 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
   const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
 
   // The current transformed file is being moved, we need to update its imports
-  if (options.expandedPaths.hasOwnProperty(file.path)) {
+  if (hasOwnProperty.call(options.expandedPaths, file.path)) {
     const currentFileTargetPath = options.expandedPaths[file.path];
     const absoluteImportPath = options.expandedPaths[absoluteImportSourcePath] || absoluteImportSourcePath;
     return generateSourcePathForMovedModule(file.path, currentFileTargetPath, importSourcePath, absoluteImportPath);
   }
 
   // The import contains a path to a file that is being moved
-  if (options.expandedPaths.hasOwnProperty(absoluteImportSourcePath)) {
+  if (hasOwnProperty.call(options.expandedPaths, absoluteImportSourcePath)) {
     const currentFileTargetPath = options.expandedPaths[file.path] || file.path;
     const targetPath = options.expandedPaths[absoluteImportSourcePath];
     return generateSourcePathForExternalModule(currentFileTargetPath, targetPath, importSourcePath);
