@@ -1,6 +1,6 @@
 {
   "name": "@fabiomcosta/mvjs",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "description": "Easily move JavaScript modules.",
   "repository": "https://github.com/fabiomcosta/mvjs",
   "main": "lib/index.js",
