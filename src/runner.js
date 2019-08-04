@@ -5,8 +5,7 @@ import path from 'path';
 import {createDebug, info} from './log';
 import {findAllJSPaths, findProjectPath, expandDirectoryPaths} from './path';
 import {objectToBase64} from './base64';
-import {validate, createMovePaths, DEFAULT, SUPPORTED_EXTENSIONS} from './options';
-import type {MoveOptions, PathMap} from './options';
+import {validate, createMovePaths, DEFAULT, SUPPORTED_EXTENSIONS, type MoveOptions, type PathMap} from './options';
 import type {ParsedOptions} from './transform';
 
 const debug = createDebug(__filename);
@@ -21,6 +20,24 @@ type TransformOptions = {
 type NormalizedOptions = {
   expandedPaths: PathMap
 } & TransformOptions;
+
+// Jest is probably doing some magic and is not properly logging the output from the jscodeshift child process.
+// This helps make us at least see outputs when running out unit tests on Jest.
+function stdoutLog(data) {
+  if (process.env.JEST_WORKER_ID) {
+    console.log(data);
+  } else  {
+    process.stdout.write(data);
+  }
+}
+
+function stderrLog(data) {
+  if (process.env.JEST_WORKER_ID) {
+    console.error(data);
+  } else {
+    process.stderr.write(data);
+  }
+}
 
 export async function executeTransform(options: NormalizedOptions): Promise<void> {
 
@@ -59,8 +76,8 @@ export async function executeTransform(options: NormalizedOptions): Promise<void
   ]);
 
   const jscodeshift = execFile(jscodeshiftBin, cmdArgs);
-  jscodeshift.stdout.on('data', process.stdout.write);
-  jscodeshift.stderr.on('data', process.stderr.write);
+  jscodeshift.stdout.on('data', stdoutLog);
+  jscodeshift.stderr.on('data', stderrLog);
   // Making sure the caller awaits until the jscodeshift process closes.
   return await new Promise(res => jscodeshift.on('close', res));
 }

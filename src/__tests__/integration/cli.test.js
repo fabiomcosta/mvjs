@@ -97,7 +97,7 @@ require(x + '1');`
     });
   });
 
-  test('rewrites require/import paths that match the moved paths', async () => {
+  test('changes require/import paths that match the moved paths on other modules inside the project folder', async () => {
     await createTmpFs({
       './a.js': '',
       './modules.js': `
@@ -115,6 +115,28 @@ require(\`./b\`);
 import _3 from './b';
 import './b';`
       );
+    });
+  });
+
+  test('changes require/import inside the moved module', async () => {
+    await createTmpFs({
+      './a1.js': '',
+      './folder/': '',
+      './a.js': `import './a1';`
+    }, async ({cwd, exec}) => {
+      await exec(['./a.js', './folder/b.js']);
+      expect(await readFileString(path.join(cwd, './folder/b.js'))).toEqual(`import '../a1';`);
+    });
+  });
+
+  test('when moving multiple files, uses the destination path to update paths on the moved modules', async () => {
+    await createTmpFs({
+      './other/a1.js': '',
+      './folder/': '',
+      './a.js': `import './other/a1';`
+    }, async ({cwd, exec}) => {
+      await exec(['./a.js', './other/a1.js', './folder/']);
+      expect(await readFileString(path.join(cwd, './folder/a.js'))).toEqual(`import './a1';`);
     });
   });
 

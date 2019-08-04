@@ -6,9 +6,8 @@ import findUp from 'find-up';
 import {promisify} from 'util';
 import requireResolve from './requireResolve';
 import {createDebug, warn} from './log';
-import {SUPPORTED_EXTENSIONS_DOTTED} from './options';
+import {SUPPORTED_EXTENSIONS_DOTTED, type PathMap} from './options';
 import type {Context} from './transform';
-import type {PathMap} from './options';
 
 const debug = createDebug(__filename);
 
@@ -64,7 +63,22 @@ function getAbsoluteImportSourcePath(context: Context, importSourcePath: string)
   );
 }
 
-function generateSourcePath(
+// Returns a relative path from `sourcePath` to `targetPath`, using `referencePath` as a "style" or "format" reference.
+// Ex:
+// sourcePath: './folder/a.js'
+// targetPath: './b.js'
+// referencePath: './folder/a'
+// -> '../b'
+function generateRelativeNormalizedPath(sourcePath: string, targetPath: string, referencePath: string): string {
+  return  normalizePath(
+    matchPathStyle(
+      path.relative(path.dirname(sourcePath), targetPath),
+      referencePath
+    )
+  );
+}
+
+function generateSourcePathForExternalModule(
   context: Context,
   targetPath: string,
   importSourcePath: string
@@ -72,15 +86,29 @@ function generateSourcePath(
 
   const {file} = context;
 
-  // ./src/c.js
-  // a.js b.js
+  // On file `./src/c.js`
+  // When moving `a.js` to `b.js`
   // import x from '../a'; -> import x from '../b;
-  const targetImportSourcePath = normalizePath(
-    matchPathStyle(
-      path.relative(path.dirname(file.path), targetPath),
-      importSourcePath
-    )
-  );
+  const targetImportSourcePath = generateRelativeNormalizedPath(file.path, targetPath, importSourcePath);
+
+  debug(`Updating ${file.path}: ${importSourcePath} -> ${targetImportSourcePath}`);
+
+  return targetImportSourcePath;
+}
+
+function generateSourcePathForMovedModule(
+  context: Context,
+  targetPath: string,
+  importSourcePath: string,
+  absoluteImportPath: string
+): string {
+
+  const {file} = context;
+
+  // On file `./c.js`
+  // When moving `./c.js` to `./src/c.js`
+  // import x from './a'; -> import x from '../a';
+  const targetImportSourcePath = generateRelativeNormalizedPath(targetPath, absoluteImportPath, importSourcePath);
 
   debug(`Updating ${file.path}: ${importSourcePath} -> ${targetImportSourcePath}`);
 
@@ -116,13 +144,19 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
   const {options} = context;
 
   for (const sourcePath in options.expandedPaths) {
-    const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
-    // The importSourcePath is not from the `sourcePath`, ignore it.
-    if (sourcePath !== absoluteImportSourcePath) {
-      continue;
-    }
     const targetPath = options.expandedPaths[sourcePath];
-    return generateSourcePath(context, targetPath, importSourcePath);
+    const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
+
+    // `sourcePath` matches the file being transformed, update path accordingly
+    if (sourcePath === file.path) {
+      const absoluteImportPath = options.expandedPaths[absoluteImportSourcePath] || absoluteImportSourcePath;
+      return generateSourcePathForMovedModule(context, targetPath, importSourcePath, absoluteImportPath);
+    }
+
+    // `importSourcePath` matches the `sourcePath`
+    if (sourcePath === absoluteImportSourcePath) {
+      return generateSourcePathForExternalModule(context, targetPath, importSourcePath);
+    }
   }
 
   return importSourcePath;
