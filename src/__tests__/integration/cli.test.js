@@ -162,6 +162,28 @@ import './b';`
     });
   });
 
+  test('keeps same import style, no index suffix', async () => {
+    await createTmpFs({
+      './mod/index.js': '',
+      './modules.js': `import './mod';`
+    }, async ({cwd, exec}) => {
+      await exec(['./mod', './mod2']);
+      expect(await readFileString(path.join(cwd, './modules.js')))
+        .toEqual(`import './mod2';`);
+    });
+  });
+
+  test('keeps same import style, keeps index suffix if already present', async () => {
+    await createTmpFs({
+      './mod/index.js': '',
+      './modules.js': `import './mod/index';`
+    }, async ({cwd, exec}) => {
+      await exec(['./mod', './mod2']);
+      expect(await readFileString(path.join(cwd, './modules.js')))
+        .toEqual(`import './mod2/index';`);
+    });
+  });
+
   test('moves jsx files', async () => {
     await createTmpFs({
       './a.jsx': '',

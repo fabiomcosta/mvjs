@@ -32,19 +32,28 @@ function normalizePath(_path: string): string {
  * Ex:
  * -> import x from '../a';
  * <- import x from '../b'; // and not '../b.js'
+ * 
+ * -> import x from '../a/index';
+ * <- import x from '../b/index'; // and not '../b'
  */
 export function matchPathStyle(_path: string, referencePath: string): string {
-
   const referenceExt = path.extname(referencePath);
+
   // referencePath has an extension, let's keep it
   if (referenceExt) {
     return _path;
   }
 
-  // remove extension in case the referencePath doesn't have one
+  const referenceBasename = path.basename(referencePath, referenceExt);
+
   const pathExt = path.extname(_path);
   const pathBasename = path.basename(_path, pathExt);
   const pathDirname = path.dirname(_path);
+
+  // Remove `index` from path if reference doesn't have it
+  if (pathBasename === 'index' && referenceBasename !== 'index') {
+    return pathDirname;
+  }
 
   return path.join(pathDirname, pathBasename);
 }
