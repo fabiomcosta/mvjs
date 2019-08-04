@@ -54,15 +54,6 @@ async function validateSourcePaths(options: MoveOptions): Promise<void> {
           `Source "${sourcePath}" doesn't exist.`
         );
       }
-      if (!sourceStat.isDirectory()) {
-        const ext = path.extname(sourcePath);
-        if (!SUPPORTED_EXTENSIONS_DOTTED.has(ext)) {
-          throw new Error(
-            `Can't move "${sourcePath}". Supported extensions: ` +
-            `${Array.from(SUPPORTED_EXTENSIONS).join(', ')}.`
-          );
-        }
-      }
     }));
 }
 
@@ -77,14 +68,6 @@ async function validateTargetPath(options: MoveOptions): Promise<void> {
     if (targetStat) {
       throw new Error(
         `Target "${targetPath}" already exists.`
-      );
-    }
-
-    const ext = path.extname(targetPath);
-    if (ext && !SUPPORTED_EXTENSIONS_DOTTED.has(ext)) {
-      throw new Error(
-        `Can't move to "${targetPath}". Supported extensions: ` +
-        `${Array.from(SUPPORTED_EXTENSIONS).join(', ')}.`
       );
     }
   } else {

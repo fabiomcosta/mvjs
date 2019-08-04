@@ -151,6 +151,17 @@ import './b';`
     });
   });
 
+  test('updates imports for paths with any extension', async () => {
+    await createTmpFs({
+      './a.someWeirdExtension': '',
+      './modules.js': `import './a.someWeirdExtension';`
+    }, async ({cwd, exec}) => {
+      await exec(['./a.someWeirdExtension', './a.otherExt']);
+      expect(await readFileString(path.join(cwd, './modules.js')))
+        .toEqual(`import './a.otherExt';`);
+    });
+  });
+
   test('moves jsx files', async () => {
     await createTmpFs({
       './a.jsx': '',

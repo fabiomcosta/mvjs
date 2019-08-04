@@ -131,12 +131,6 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
     return importSourcePath;
   }
 
-  // Has an unsupported extension, ignore.
-  const importSourcePathExt = path.extname(importSourcePath);
-  if (importSourcePathExt && !SUPPORTED_EXTENSIONS_DOTTED.has(importSourcePathExt)) {
-    return importSourcePath;
-  }
-
   const {options} = context;
   const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
 
