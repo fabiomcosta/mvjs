@@ -14,7 +14,6 @@ jest.mock('../log', () => {
   };
 });
 
-
 jest.mock('find-up', () => jest.fn());
 
 describe('findProjectPath', () => {
@@ -42,7 +41,6 @@ describe('findProjectPath', () => {
     );
   });
 });
-
 
 describe('matchPathStyle', () => {
   test('keeps the file extension if reference has it', () => {
@@ -103,17 +101,15 @@ describe('updateSourcePath', () => {
     expect(updateSourcePath(context, './d')).toBe('./e');
     expect(debug).toHaveBeenCalledWith(`Updating /a/b/c.js: ./d -> ./e`);
   });
-
 });
-
 
 describe('expandDirectoryPaths', () => {
   it('expands folder paths into descendant file paths', async () => {
     const {cwd} = await createTemporaryFs({
       './foo.js': '',
-      './foo/bar.js': '',
       './foo/baz.js': '',
-      './foo/bar/baz.js': ''
+      './foo/bar/baz.js': '',
+      './foo/bar/baz.css': ''
     });
     const join = path.join.bind(path, cwd);
     const pathMap = {
@@ -122,10 +118,9 @@ describe('expandDirectoryPaths', () => {
     };
     expect(await expandDirectoryPaths(pathMap)).toEqual({
       [join('./foo.js')]: join('./fuu/buz/foo/foo.js'),
-      [join('./foo/bar.js')]: join('./fuu/buz/foo/bar.js'),
       [join('./foo/baz.js')]: join('./fuu/buz/foo/baz.js'),
-      [join('./foo/bar/baz.js')]: join('./fuu/buz/foo/bar/baz.js')
+      [join('./foo/bar/baz.js')]: join('./fuu/buz/foo/bar/baz.js'),
+      [join('./foo/bar/baz.css')]: join('./fuu/buz/foo/bar/baz.css')
     });
   });
 });
-

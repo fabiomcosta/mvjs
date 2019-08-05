@@ -177,6 +177,10 @@ const IGNORED_FOLDERS = new Set(['node_modules', '.git', '.hg']);
 // Note that the .git and .hg folder would need to match the package.json
 // folder for this to work properly.
 export async function findAllJSPaths(rootPath: string): Promise<Array<string>> {
+  return await findAllPaths(rootPath, SUPPORTED_EXTENSIONS_DOTTED);
+}
+
+async function findAllPaths(rootPath: string, supportedExtensions?: Set<string>): Promise<Array<string>> {
   const subFiles = await readdir(rootPath);
   const files = await Promise.all(subFiles.map(async (subFile) => {
     const res = path.join(rootPath, subFile);
@@ -184,8 +188,8 @@ export async function findAllJSPaths(rootPath: string): Promise<Array<string>> {
       if (IGNORED_FOLDERS.has(subFile)) {
         return null;
       }
-      return findAllJSPaths(res);
-    } else if (!SUPPORTED_EXTENSIONS_DOTTED.has(path.extname(subFile))) {
+      return findAllPaths(res, supportedExtensions);
+    } else if (supportedExtensions && !supportedExtensions.has(path.extname(subFile))) {
       return null;
     }
     return res;
@@ -211,7 +215,7 @@ export async function expandDirectoryPaths(pathMap: PathMap): Promise<PathMap> {
     .reduce(async (_acc, {sourcePath, stat}) => {
       const acc = await _acc;
       if ((await stat).isDirectory()) {
-        const allDescendants = await findAllJSPaths(sourcePath);
+        const allDescendants = await findAllPaths(sourcePath);
         const targetPath = pathMap[sourcePath];
         allDescendants.forEach(descendant => {
           acc[descendant] = path.join(targetPath, path.relative(sourcePath, descendant));
