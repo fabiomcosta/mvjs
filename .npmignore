@@ -4,4 +4,6 @@ __tests__
 .gitignore
 .flowconfig
 .babelrc
+.eslintrc
 /tags
+/assets
