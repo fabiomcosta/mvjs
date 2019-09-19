@@ -95,7 +95,5 @@ import {transform} from '@fabiomcosta/mvjs';
 - [x] move .jsx, .mjs, .es, .es6
 - [x] move multiple sources to a directory
 - [x] move a directory to another directory
-- [ ] move *any* file extension (keep updating the references only on from .js, .jsx, .mjs, .es, .es6 files)
-- [ ] Use git or hg to search for the project files (with fallback to the current method)
-- [ ] Use git or hg to move the files
+- [x] move *any* file extension (keep updating the references only from .js, .jsx, .mjs, .es, .es6 files)
 - [ ] Update references on other types of files, like CSS, SASS, LESS etc.
