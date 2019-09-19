@@ -4,3 +4,4 @@ __tests__
 .gitignore
 .flowconfig
 .babelrc
+/tags
