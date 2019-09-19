@@ -1,8 +1,6 @@
 // @flow
 
-import memoize from 'fast-memoize';
 import {updateNodePath, isImportOrRequireNode} from './ast';
-import {base64ToObject} from './base64';
 import type {PathMap} from './options';
 
 export type File = {
@@ -22,18 +20,12 @@ export type Context = {
 };
 
 type Options = {
-  options: string,
+  options: ParsedOptions,
 };
-// base64ToObject is used once for each transformed file, so caching it gives
-// us a nice perf win.
-const memoizedBase64ToObject = memoize(base64ToObject);
-function parseOptions({options}: Options): ParsedOptions {
-  return memoizedBase64ToObject(options);
-}
 
 export default function transformer(file: any, api: any, options: Options) {
   const j = api.jscodeshift;
-  const context = {j, file, options: parseOptions(options)};
+  const context = {j, file, options: options.options};
   const transform = j(file.source);
 
   transform

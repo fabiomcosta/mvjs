@@ -1,12 +1,11 @@
 // @flow
 
-import {execFile} from 'child_process';
 import path from 'path';
 import {createDebug, info} from './log';
 import {findAllJSPaths, findProjectPath, expandDirectoryPaths} from './path';
-import {objectToBase64} from './base64';
 import {validate, createMovePaths, DEFAULT, SUPPORTED_EXTENSIONS, type MoveOptions, type PathMap} from './options';
 import type {ParsedOptions} from './transform';
+import Runner from 'jscodeshift/src/Runner';
 
 const debug = createDebug(__filename);
 
@@ -20,24 +19,6 @@ type TransformOptions = {
 type NormalizedOptions = {
   expandedPaths: PathMap
 } & TransformOptions;
-
-// Jest is probably doing some magic and is not properly logging the output from the jscodeshift child process.
-// This helps make us at least see outputs when running out unit tests on Jest.
-function stdoutLog(data) {
-  if (process.env.JEST_WORKER_ID) {
-    console.log(data);
-  } else  {
-    process.stdout.write(data);
-  }
-}
-
-function stderrLog(data) {
-  if (process.env.JEST_WORKER_ID) {
-    console.error(data);
-  } else {
-    process.stderr.write(data);
-  }
-}
 
 export async function executeTransform(options: NormalizedOptions): Promise<void> {
 
@@ -63,23 +44,13 @@ export async function executeTransform(options: NormalizedOptions): Promise<void
     recastOptions
   };
 
-  const jscodeshiftBin = path.join(
-    __dirname, '..', 'node_modules', '.bin', 'jscodeshift'
-  );
-
-  const cmdArgs = allJSPaths.concat([
-    '--extensions', Array.from(SUPPORTED_EXTENSIONS).join(','),
-    '--transform', path.join(__dirname, 'transform.js'),
-    '--parser', options.parser || DEFAULT.parser,
-    '--silent',
-    '--options', objectToBase64(transformOptions)
-  ]);
-
-  const jscodeshift = execFile(jscodeshiftBin, cmdArgs);
-  jscodeshift.stdout.on('data', stdoutLog);
-  jscodeshift.stderr.on('data', stderrLog);
-  // Making sure the caller awaits until the jscodeshift process closes.
-  return await new Promise(res => jscodeshift.on('close', res));
+  return await Runner.run(path.join(__dirname, 'transform.js'), allJSPaths, {
+    silent: true,
+    verbose: 0,
+    extensions: Array.from(SUPPORTED_EXTENSIONS).join(','),
+    parser: options.parser || DEFAULT.parser,
+    options: transformOptions
+  });
 }
 
 type Options = MoveOptions & TransformOptions;
