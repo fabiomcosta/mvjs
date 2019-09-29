@@ -3,7 +3,7 @@
 import {warn} from './log';
 import {updateSourcePath} from './path';
 import type {Context} from './transform';
-import type {Node, TemplateLiteral, Literal, Identifier, CallExpression} from 'ast-types-flow';
+import type {Node, TemplateLiteral, Literal, CallExpression} from 'ast-types-flow';
 
 function updateTemplateLiteralPath(context: Context, templateLiteral: TemplateLiteral): ?TemplateLiteral {
   const {j, file} = context;
@@ -50,11 +50,6 @@ export function updateNodePath(context: Context, originalSourcePathNode: Node): 
   );
 }
 
-function isProbablyGlobalIdentifier(identifier: Identifier): boolean {
-  // TODO provide a warning when this doesn't match
-  return (/^self|global$/).test(identifier.name);
-}
-
 export function isImportOrRequireNode(j: any, {callee}: CallExpression): boolean {
   switch (callee.type) {
     // $FlowFixMe the 'Import' is not yet supported by ast-types-flow
@@ -64,15 +59,6 @@ export function isImportOrRequireNode(j: any, {callee}: CallExpression): boolean
     case 'Identifier':
     // require('...')
       return callee.name === 'require';
-    case 'MemberExpression':
-    // global.require('...') or self.require('...')
-      const {object, property} = callee;
-      if (object.type !== 'Identifier' || property.type !== 'Identifier') {
-        // There is a very high chance this is not a require call, let's not
-        // even warn or debug about it to avoid confusion.
-        return false;
-      }
-      return property.name === 'require' && isProbablyGlobalIdentifier(object);
   }
   return false;
 }
