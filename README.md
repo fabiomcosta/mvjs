@@ -23,6 +23,11 @@ It does this by running a codemod on all JavaScript modules inside the project
 (with the help of `jscodeshift`) and smartly updating `import` declarations and
 `require` calls.
 
+For non-js module files, a regular expression runs on their content, replacing
+any string that looks like a path and matches any of the moved files will be
+properly replaced. This gives extra piece of mind when moving `.scss` and other
+file extensions that can potentially import other files.
+
 ## Features
 
 * Supports and updates `import _ from '...'`, `import('...')` and `require('...')`
@@ -96,4 +101,4 @@ import {transform} from '@fabiomcosta/mvjs';
 - [x] move multiple sources to a directory
 - [x] move a directory to another directory
 - [x] move *any* file extension (keep updating the references only from .js, .jsx, .mjs, .es, .es6 files)
-- [ ] Update references on other types of files, like CSS, SASS, LESS etc.
+- [x] Update references on other types of files, like CSS, SASS, LESS etc.
