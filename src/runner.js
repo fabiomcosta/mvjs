@@ -2,7 +2,7 @@
 
 import path from 'path';
 import {createDebug, info} from './log';
-import {findAllJSPaths, findProjectPath, expandDirectoryPaths} from './path';
+import {findAllPathsCategorized, findProjectPath, expandDirectoryPaths, readFile, writeFile, updateSourcePath} from './path';
 import {validate, createMovePaths, DEFAULT, SUPPORTED_EXTENSIONS, type MoveOptions, type PathMap} from './options';
 import type {ParsedOptions} from './transform';
 import Runner from 'jscodeshift/src/Runner';
@@ -20,6 +20,29 @@ type NormalizedOptions = {
   expandedPaths: PathMap
 } & TransformOptions;
 
+async function promiseObject(object: { [string]: Promise<mixed> | mixed }): Promise<{ [string]: mixed }> {
+  return await Promise.all(Object.entries(object).map(entry => Promise.all(entry)))
+    .then(entries => entries.reduce((acc, entry) => { const [k,v] = entry; acc[k] = v; return acc; }, {}));
+}
+
+async function genericTransform(paths: Array<string>, options: ParsedOptions): Promise<void> {
+  // $FlowFixMe :shrug:
+  for await (const {_path, content} of paths.map(p => promiseObject({_path: p, content: readFile(p, 'utf-8')}))) {
+    const transformedContent = content.replace(/(['"])([ \t]*\.\.?\/[^\1]*)\1/g, (_, quote, filePath) => {
+      // Context object with a similar shape to the one provided by the jscodeshift
+      // transform. It contains the values that are actually used by `updateSourcePath`.
+      const context = {
+        j: null,
+        file: {path: _path, source: ''},
+        options
+      };
+      return `${quote}${updateSourcePath(context, filePath.trim())}${quote}`;
+    });
+
+    await writeFile(_path, transformedContent, 'utf-8');
+  }
+}
+
 export async function executeTransform(options: NormalizedOptions): Promise<void> {
 
   const {expandedPaths} = options;
@@ -36,7 +59,7 @@ export async function executeTransform(options: NormalizedOptions): Promise<void
     info(`Recast options:\n${JSON.stringify(recastOptions, null, 2)}`);
   }
 
-  const allJSPaths = await findAllJSPaths(projectPath);
+  const {js: allJSPaths, others: allOtherPaths} = await findAllPathsCategorized(projectPath);
   debug('Detected js paths', `\n  ${allJSPaths.join('\n  ')}`);
 
   const transformOptions: ParsedOptions = {
@@ -44,13 +67,16 @@ export async function executeTransform(options: NormalizedOptions): Promise<void
     recastOptions
   };
 
-  return await Runner.run(path.join(__dirname, 'transform.js'), allJSPaths, {
-    silent: true,
-    verbose: 0,
-    extensions: Array.from(SUPPORTED_EXTENSIONS).join(','),
-    parser: options.parser || DEFAULT.parser,
-    options: transformOptions
-  });
+  await Promise.all([
+    genericTransform(allOtherPaths, transformOptions),
+    Runner.run(path.join(__dirname, 'transform.js'), allJSPaths, {
+      silent: true,
+      verbose: 0,
+      extensions: Array.from(SUPPORTED_EXTENSIONS).join(','),
+      parser: options.parser || DEFAULT.parser,
+      options: transformOptions
+    })
+  ]);
 }
 
 type Options = MoveOptions & TransformOptions;

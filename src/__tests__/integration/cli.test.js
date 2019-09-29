@@ -20,7 +20,7 @@ async function readFileString(_path: string): Promise<string> {
 
 async function _exec(args: Array<string>, cwd=__dirname): Promise<ChildProcess> {
   const cliPath = path.join(PROJECT_ROOT, 'lib', 'cli.js');
-  const cmd = `node ${cliPath} ${args.join(' ')}`;
+  const cmd = `node ${cliPath} "${args.join('" "')}"`;
   const childProcess = await exec(cmd, {cwd});
   const {stdout, stderr} = childProcess;
   // eslint-disable-next-line no-console
@@ -159,6 +159,17 @@ import './b';`
       await exec(['./a.someWeirdExtension', './a.otherExt']);
       expect(await readFileString(path.join(cwd, './modules.js')))
         .toEqual(`import './a.otherExt';`);
+    });
+  });
+
+  test('updates imports inside non-js modules', async () => {
+    await createTmpFs({
+      './a.someWeirdExtension': `@import ' ./mod les.js ';`,
+      './mod les.js': ''
+    }, async ({cwd, exec}) => {
+      await exec(['./mod les.js', './m.js']);
+      expect(await readFileString(path.join(cwd, './a.someWeirdExtension')))
+        .toEqual(`@import './m.js';`);
     });
   });
 

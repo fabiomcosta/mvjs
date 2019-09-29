@@ -8,16 +8,16 @@
     "mvjs": "lib/cli.js"
   },
   "engines": {
-    "node": "^10.0.0",
-    "npm": "^6.0.0"
+    "node": ">=10.0.0",
+    "npm": ">=6.0.0"
   },
   "scripts": {
     "test": "npm run lint && npm run flow && npm run unit",
     "flow": "flow",
     "flow-typed": "flow-typed",
     "lint": "eslint --fix src/",
-    "unit": "jest",
-    "prepublishOnly": "node -e 'require(`fs-extra`).removeSync(`lib/`)' && npm run build && npm t",
+    "unit": "npm run build && jest",
+    "prepublishOnly": "node -e 'require(`fs-extra`).removeSync(`lib/`)' && npm t",
     "build": "babel src/ -d lib/ --copy-files",
     "build:watch": "npm run build -- --watch"
   },

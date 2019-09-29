@@ -14,6 +14,8 @@ const debug = createDebug(__filename);
 
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
+export const readFile = promisify(fs.readFile);
+export const writeFile = promisify(fs.writeFile);
 
 /**
  * Makes sure a path always starts with `/` or `./`.
@@ -33,7 +35,7 @@ function normalizePath(_path: string): string {
  * Ex:
  * -> import x from '../a';
  * <- import x from '../b'; // and not '../b.js'
- * 
+ *
  * -> import x from '../a/index';
  * <- import x from '../b/index'; // and not '../b'
  */
@@ -171,6 +173,20 @@ export async function findProjectPath(): Promise<string> {
   return path.dirname(projectPackageJson);
 }
 
+function splitByFilter(array: Array<string>, filterFn: (string) => boolean): [Array<string>, Array<string>] {
+  const truthyValues = [];
+  const falsyValues = [];
+  array.forEach(value => {
+    const arr = filterFn(value) ? truthyValues : falsyValues;
+    arr.push(value);
+  });
+  return [truthyValues, falsyValues];
+}
+
+function pathHasExtension(_path: string, extensions: Set<string>): boolean {
+  return extensions.has(path.extname(_path));
+}
+
 const IGNORED_FOLDERS = new Set(['node_modules', '.git', '.hg']);
 
 // TODO: use `git ls-files` and `hg manifest` to consider ignored files.
@@ -178,6 +194,12 @@ const IGNORED_FOLDERS = new Set(['node_modules', '.git', '.hg']);
 // folder for this to work properly.
 export async function findAllJSPaths(rootPath: string): Promise<Array<string>> {
   return await findAllPaths(rootPath, SUPPORTED_EXTENSIONS_DOTTED);
+}
+
+export async function findAllPathsCategorized(rootPath: string): Promise<{ js: Array<string>, others: Array<string> }> {
+  const allPaths = await findAllPaths(rootPath);
+  const [js, others] = splitByFilter(allPaths, p => pathHasExtension(p, SUPPORTED_EXTENSIONS_DOTTED));
+  return {js, others};
 }
 
 async function findAllPaths(rootPath: string, supportedExtensions?: Set<string>): Promise<Array<string>> {
@@ -189,7 +211,7 @@ async function findAllPaths(rootPath: string, supportedExtensions?: Set<string>)
         return null;
       }
       return findAllPaths(res, supportedExtensions);
-    } else if (supportedExtensions && !supportedExtensions.has(path.extname(subFile))) {
+    } else if (supportedExtensions && !pathHasExtension(subFile, supportedExtensions)) {
       return null;
     }
     return res;
