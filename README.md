@@ -102,3 +102,4 @@ import {transform} from '@fabiomcosta/mvjs';
 - [x] move a directory to another directory
 - [x] move *any* file extension (keep updating the references only from .js, .jsx, .mjs, .es, .es6 files)
 - [x] Update references on other types of files, like CSS, SASS, LESS etc.
+- [ ] Optionaly rename imported default
