@@ -1,7 +1,7 @@
 // @flow
 
 import path from 'path';
-import { isBinaryFile} from 'isbinaryfile';
+import {isBinaryFile} from 'isbinaryfile';
 import {createDebug, info} from './log';
 import {findAllPathsCategorized, findProjectPath, expandDirectoryPaths, readFile, writeFile, updateSourcePath} from './path';
 import {validate, createMovePaths, DEFAULT, JS_EXTENSIONS, type MoveOptions, type PathMap} from './options';
@@ -35,7 +35,12 @@ async function genericTransform(paths: Array<string>, options: ParsedOptions): P
       return;
     }
 
-    const transformedContent = String(content).replace(/(['"])([ \t]*\.\.?\/[^\1]*?)\1/g, (_, quote, filePath) => {
+    // Best guess on matching file paths on non-js files.
+    // Leaning more on strictness, and avoiding detecting incorrect paths.
+    //
+    // Some of the rules include:
+    // * the path can't have spaces
+    const transformedContent = String(content).replace(/(['"])([ \t]*\.\.?\/[^\1\s*]*?)\1/g, (_, quote, filePath) => {
       // Context object with a similar shape to the one provided by the jscodeshift
       // transform. It contains the values that are actually used by `updateSourcePath`.
       const context = {
