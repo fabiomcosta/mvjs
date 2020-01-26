@@ -6,7 +6,7 @@ import findUp from 'find-up';
 import {promisify} from 'util';
 import requireResolve from './requireResolve';
 import {createDebug, warn} from './log';
-import {SUPPORTED_EXTENSIONS_DOTTED, type PathMap} from './options';
+import {JS_EXTENSIONS_DOTTED, type PathMap} from './options';
 import type {Context} from './transform';
 
 const {hasOwnProperty} = Object.prototype;
@@ -69,18 +69,22 @@ export function matchPathStyle(_path: string, referencePath: string): string {
  */
 function getAbsoluteImportSourcePath(context: Context, importSourcePath: string): string {
   const {file} = context;
-  return requireResolve(
-    context,
-    path.resolve(path.dirname(file.path), importSourcePath)
-  );
+  const absolutePath = path.resolve(path.dirname(file.path), importSourcePath);
+  if (pathHasJSExtension(file.path)) {
+    // It only makes sense to use requireResolve on JS files
+    return requireResolve(context, absolutePath);
+  }
+  return absolutePath;
 }
 
-// Returns a relative path from `sourcePath` to `targetPath`, using `referencePath` as a "style" or "format" reference.
-// Ex:
-// sourcePath: './folder/a.js'
-// targetPath: './b.js'
-// referencePath: './folder/a'
-// -> '../b'
+/**
+ * Returns a relative path from `sourcePath` to `targetPath`, using `referencePath` as a "style" or "format" reference.
+ * Ex:
+ * sourcePath: './folder/a.js'
+ * targetPath: './b.js'
+ * referencePath: './folder/a'
+ * -> '../b'
+ */
 function generateRelativeNormalizedPath(sourcePath: string, targetPath: string, referencePath: string): string {
   return  normalizePath(
     matchPathStyle(
@@ -131,7 +135,7 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
   // They are generaly not used "as-is", but there is a babel plugin that
   // allows absolute paths.
   // https://www.npmjs.com/package/babel-plugin-root-import
-  // We are not going to do aything about it.
+  // We are not going to do anything about it.
   if (path.isAbsolute(importSourcePath)) {
     debug(`Ignoring absolute path "${importSourcePath}" from "${file.path}".`);
     return importSourcePath;
@@ -187,18 +191,22 @@ function pathHasExtension(_path: string, extensions: Set<string>): boolean {
   return extensions.has(path.extname(_path));
 }
 
+function pathHasJSExtension(_path: string): boolean {
+  return pathHasExtension(_path, JS_EXTENSIONS_DOTTED);
+}
+
 const IGNORED_FOLDERS = new Set(['node_modules', '.git', '.hg']);
 
 // TODO: use `git ls-files` and `hg manifest` to consider ignored files.
 // Note that the .git and .hg folder would need to match the package.json
 // folder for this to work properly.
 export async function findAllJSPaths(rootPath: string): Promise<Array<string>> {
-  return await findAllPaths(rootPath, SUPPORTED_EXTENSIONS_DOTTED);
+  return await findAllPaths(rootPath, JS_EXTENSIONS_DOTTED);
 }
 
 export async function findAllPathsCategorized(rootPath: string): Promise<{ js: Array<string>, others: Array<string> }> {
   const allPaths = await findAllPaths(rootPath);
-  const [js, others] = splitByFilter(allPaths, p => pathHasExtension(p, SUPPORTED_EXTENSIONS_DOTTED));
+  const [js, others] = splitByFilter(allPaths, pathHasJSExtension);
   return {js, others};
 }
 

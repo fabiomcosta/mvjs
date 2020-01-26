@@ -1,9 +1,10 @@
 // @flow
 
 import path from 'path';
+import { isBinaryFile} from 'isbinaryfile';
 import {createDebug, info} from './log';
 import {findAllPathsCategorized, findProjectPath, expandDirectoryPaths, readFile, writeFile, updateSourcePath} from './path';
-import {validate, createMovePaths, DEFAULT, SUPPORTED_EXTENSIONS, type MoveOptions, type PathMap} from './options';
+import {validate, createMovePaths, DEFAULT, JS_EXTENSIONS, type MoveOptions, type PathMap} from './options';
 import type {ParsedOptions} from './transform';
 import Runner from 'jscodeshift/src/Runner';
 
@@ -27,8 +28,14 @@ async function promiseObject(object: { [string]: Promise<mixed> | mixed }): Prom
 
 async function genericTransform(paths: Array<string>, options: ParsedOptions): Promise<void> {
   // $FlowFixMe :shrug:
-  for await (const {_path, content} of paths.map(p => promiseObject({_path: p, content: readFile(p, 'utf-8')}))) {
-    const transformedContent = content.replace(/(['"])([ \t]*\.\.?\/[^\1]*)\1/g, (_, quote, filePath) => {
+  for await (const {_path, content} of paths.map(p => promiseObject({_path: p, content: readFile(p)}))) {
+    const isFileBinary = await isBinaryFile(content);
+    // Ignore binary files
+    if (isFileBinary) {
+      return;
+    }
+
+    const transformedContent = String(content).replace(/(['"])([ \t]*\.\.?\/[^\1]*?)\1/g, (_, quote, filePath) => {
       // Context object with a similar shape to the one provided by the jscodeshift
       // transform. It contains the values that are actually used by `updateSourcePath`.
       const context = {
@@ -72,7 +79,7 @@ export async function executeTransform(options: NormalizedOptions): Promise<void
     Runner.run(path.join(__dirname, 'transform.js'), allJSPaths, {
       silent: true,
       verbose: 0,
-      extensions: Array.from(SUPPORTED_EXTENSIONS).join(','),
+      extensions: Array.from(JS_EXTENSIONS).join(','),
       parser: options.parser || DEFAULT.parser,
       options: transformOptions
     })

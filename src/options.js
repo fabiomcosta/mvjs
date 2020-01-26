@@ -21,12 +21,12 @@ export const DEFAULT = {
   recast: {quote: 'single'}
 };
 
-export const SUPPORTED_EXTENSIONS: Set<string> = new Set(
+export const JS_EXTENSIONS: Set<string> = new Set(
   ['js', 'jsx', 'mjs', 'es', 'es6']
 );
 
-export const SUPPORTED_EXTENSIONS_DOTTED: Set<string> = new Set(
-  [...Array.from(SUPPORTED_EXTENSIONS, ext => `.${ext}`)]
+export const JS_EXTENSIONS_DOTTED: Set<string> = new Set(
+  [...Array.from(JS_EXTENSIONS, ext => `.${ext}`)]
 );
 
 async function gracefulFsStat(_path: string): Promise<?Stats> {
