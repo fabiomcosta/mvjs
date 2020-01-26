@@ -32,9 +32,11 @@ file extensions that can potentially import other files.
 
 * Supports and updates `import _ from '...'`, `import('...')` and `require('...')`
 * Updates files using all of the new JavaScript features and even [Flow](https://flow.org/) annotations
-* Moves individual JS modules as well as directories containing modules
+* Does its best to also update non-js files
+* Moves files or directories
 * Same api and simplicity of the `mv` command
 * Shows easy to understand errors when unexpected things happen
+* Uses `DEBUG` environment variable to show extra dbug information. Ex: `DEBUB=* mvjs ./a.js ./b.js`
 
 ## Install
 
@@ -63,6 +65,44 @@ Examples:
                                               In this example the codemoded files are going to have double quotes for
                                               all strings.
                                               See https://github.com/benjamn/recast/blob/master/lib/options.js
+```
+
+## Example
+
+Consider the following folder structure for a project:
+
+```
+root/
+│   package.json
+└── src/
+    ├── common/
+    │   └── config.js
+    └── client/
+        │   paths-client.js
+        └── files-client.js
+```
+
+And the following file content for `./src/client/paths-client.js`:
+
+```js
+import files from './files-client';
+// or const files = require('./files-client');
+```
+
+Let's move the `./src/client/files-client.js` module inside the `./src/common/` folder:
+
+```
+mvjs ./src/client/files-client.js ./src/common/files.js
+```
+
+This will make sure that all files that had a reference to this module are also
+going to be properly updated, which means that the contents of `paths-client.js`
+will be updated to:
+
+```js
+// paths-client.js
+import files from '../common/files';
+// or const files = require('../common/files');
 ```
 
 ## API Usage
