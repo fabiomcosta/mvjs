@@ -96,8 +96,7 @@ mvjs ./src/client/files-client.js ./src/common/files.js
 ```
 
 This will make sure that all files that had a reference to this module are also
-going to be properly updated, which means that the contents of `paths-client.js`
-will be updated to:
+going to be properly updated, which means that `paths-client.js` will be updated to:
 
 ```js
 // paths-client.js
