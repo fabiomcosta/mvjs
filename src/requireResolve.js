@@ -1,6 +1,7 @@
 // @flow
 
 import type {Context} from './transform';
+import {warn} from './log';
 
 /**
  * Tries to resolve a module path and if it can't find the module we throw
@@ -11,9 +12,8 @@ export default function requireResolve(context: Context, _path: string): string 
     return require.resolve(_path);
   } catch (e) {
     if (e.code === 'MODULE_NOT_FOUND') {
-      throw new Error(
-        `File "${context.file.path}" is importing "${_path}" but it does not exists.`
-      );
+      warn(`File "${context.file.path}" is importing "${_path}" but it does not exists.`);
+      return _path;
     }
     throw e;
   }
