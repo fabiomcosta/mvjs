@@ -40,7 +40,7 @@ async function genericTransform(paths: Array<string>, options: ParsedOptions): P
     //
     // Some of the rules include:
     // * the path can't have spaces
-    const transformedContent = String(content).replace(/(['"])([ \t]*\.\.?\/[^\1\s*]*?)\1/g, (_, quote, filePath) => {
+    const transformedContent = String(content).replace(/(['"])([ \t]*\.\.?\/[^\1\s*]*?)[ \t]*\1/g, (_, quote, filePath) => {
       // Context object with a similar shape to the one provided by the jscodeshift
       // transform. It contains the values that are actually used by `updateSourcePath`.
       const context = {

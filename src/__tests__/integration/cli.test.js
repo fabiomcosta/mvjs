@@ -164,10 +164,10 @@ import './b';`
 
   test('updates imports inside non-js modules', async () => {
     await createTmpFs({
-      './a.someWeirdExtension': `@import ' ./mod les.js ';`,
-      './mod les.js': ''
+      './a.someWeirdExtension': `@import ' ./modles.js ';`,
+      './modles.js': ''
     }, async ({cwd, exec}) => {
-      await exec(['./mod les.js', './m.js']);
+      await exec(['./modles.js', './m.js']);
       expect(await readFileString(path.join(cwd, './a.someWeirdExtension')))
         .toEqual(`@import './m.js';`);
     });
