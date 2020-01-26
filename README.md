@@ -99,9 +99,7 @@ This will make sure that all files that had a reference to this module are also
 going to be properly updated, which means that `paths-client.js` will be updated to:
 
 ```js
-// paths-client.js
 import files from '../common/files';
-// or const files = require('../common/files');
 ```
 
 ## API Usage
