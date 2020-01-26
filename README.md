@@ -3,12 +3,12 @@
 </h3>
 
 <p align="center">
-  Easily move JavaScript modules.
+  Easily move files and directories around your JavaScript project.
 </p>
 
 # mvjs &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/fabiomcosta/mvjs/blob/master/LICENSE) [![npm version](https://badge.fury.io/js/%40fabiomcosta%2Fmvjs.svg)](https://badge.fury.io/js/%40fabiomcosta%2Fmvjs)
 
-Moves JavaScript modules and updates their reference on other modules inside the current project.
+Easily move files and directories around your JavaScript project.
 
 ## The problem
 
@@ -26,7 +26,7 @@ It does this by running a codemod on all JavaScript modules inside the project
 For non-js module files, a regular expression runs on their content, replacing
 any string that looks like a path and matches any of the moved files will be
 properly replaced. This gives extra piece of mind when moving `.scss` and other
-file extensions that can potentially import other files.
+file extensions that can potentially import one of the moved files.
 
 ## Features
 
@@ -100,6 +100,7 @@ going to be properly updated, which means that `paths-client.js` will be updated
 
 ```js
 import files from '../common/files';
+// or const files = require('../common/files');
 ```
 
 ## API Usage
