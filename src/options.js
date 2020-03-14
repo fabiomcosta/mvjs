@@ -22,7 +22,7 @@ export const DEFAULT = {
 };
 
 export const JS_EXTENSIONS: Set<string> = new Set(
-  ['js', 'jsx', 'mjs', 'es', 'es6']
+  ['js', 'jsx', 'mjs', 'es', 'es6', 'ts', 'tsx']
 );
 
 export const JS_EXTENSIONS_DOTTED: Set<string> = new Set(

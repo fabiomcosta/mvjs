@@ -31,7 +31,7 @@ file extensions that can potentially import one of the moved files.
 ## Features
 
 * Supports and updates `import _ from '...'`, `import('...')` and `require('...')`
-* Updates files using all of the new JavaScript features and even [Flow](https://flow.org/) annotations
+* Updates files using JavaScript, [TypeScript](https://www.typescriptlang.org/) or [Flow](https://flow.org/)
 * Does its best to also update non-js files
 * Moves files or directories
 * Same api and simplicity of the `mv` command

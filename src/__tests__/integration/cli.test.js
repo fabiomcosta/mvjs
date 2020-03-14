@@ -219,6 +219,18 @@ import './b';`
     });
   });
 
+  test('moves tsx', async () => {
+    await createTmpFs({
+      './a.tsx': '',
+      './modules.ts': `import './a.tsx';`
+    }, async ({cwd, exec}) => {
+      await exec(['./a.tsx', './b.tsx']);
+      expect(await readFileString(path.join(cwd, './modules.ts')))
+        .toEqual(`import './b.tsx';`);
+      expect(await isFile(path.join(cwd, './b.tsx'))).toEqual(true);
+    });
+  });
+
   test('moves multiple sources to a folder', async () => {
     await createTmpFs({
       './a.js': '',
