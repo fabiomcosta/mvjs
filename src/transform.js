@@ -10,7 +10,7 @@ export type File = {
 
 export type ParsedOptions = {
   expandedPaths: PathMap,
-  recastOptions: Object
+  recastOptions?: Object
 };
 
 export type Context = {

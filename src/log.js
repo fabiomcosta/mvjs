@@ -3,14 +3,14 @@
 import {basename, dirname, extname} from 'path';
 import {codeFrameColumns} from '@babel/code-frame';
 import debug from 'debug';
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import pkg from '../package.json';
 import type {Debugger} from 'debug';
 import type {File} from './transform';
 
 // Forces colors. Ideally I'd figure out a way to make colors work when
 // using execFile.
-const c = new chalk.constructor({
+const c = new chalk.Instance({
   enabled: true,
   level: 3
 });

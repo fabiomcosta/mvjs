@@ -35,8 +35,8 @@ type TmpFsObject = {
 type TmpFsCallback = (TmpFsObject) => mixed;
 async function createTmpFs(definition: FsDefinition, callback: TmpFsCallback): Promise<void> {
   const {cwd} = await createTemporaryFs({
-    './package.json': '{}',
-    ...definition
+    ...definition,
+    './package.json': '{}'
   });
   await callback({
     cwd,

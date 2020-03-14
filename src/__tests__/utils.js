@@ -6,7 +6,7 @@ import os from 'os';
 import path from 'path';
 import {promisify} from 'util';
 import pkg from '../../package.json';
-import type {Context} from '../transform';
+import type {Context, ParsedOptions} from '../transform';
 
 const mkdtemp = promisify(fs.mkdtemp);
 const writeFile = promisify(fs.writeFile);
@@ -25,7 +25,7 @@ export function mockDescriptor(obj: Object, propertyName: string, descriptor: Ob
   });
 }
 
-export function createFakeContext(file?: Object, options?: Object): Context {
+export function createFakeContext(file?: Object, options?: ParsedOptions): Context {
   return {
     j: {},
     file: {path: '', source: '', ...file},
@@ -34,7 +34,8 @@ export function createFakeContext(file?: Object, options?: Object): Context {
 }
 
 export type FsDefinition = {
-  [string]: string | Promise<string>
+  [string]: string | Promise<string>,
+  ...
 };
 type FsDescriptor = {
   cwd: string
