@@ -33,6 +33,7 @@ type TmpFsObject = {
   exec: (Array<string>) => Promise<ChildProcess>
 };
 type TmpFsCallback = (TmpFsObject) => mixed;
+
 async function createTmpFs(definition: FsDefinition, callback: TmpFsCallback): Promise<void> {
   const {cwd} = await createTemporaryFs({
     ...definition,
@@ -105,7 +106,8 @@ import('./a');
 require('./a.js');
 require(\`./a\`);
 import _3 from './a';
-import './a';`
+import './a';
+proxyquire('./a');`
     }, async ({cwd, exec}) => {
       await exec(['./a.js', './b.js']);
       expect(await readFileString(path.join(cwd, './modules.js'))).toEqual(`
@@ -113,7 +115,8 @@ import('./b');
 require('./b.js');
 require(\`./b\`);
 import _3 from './b';
-import './b';`
+import './b';
+proxyquire('./b');`
       );
     });
   });

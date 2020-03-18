@@ -57,8 +57,8 @@ export function isImportOrRequireNode(j: any, {callee}: CallExpression): boolean
     // import('...')
       return true;
     case 'Identifier':
-    // require('...')
-      return callee.name === 'require';
+    // require('...') or proxyquire('...')
+      return callee.name === 'require' || callee.name === 'proxyquire';
   }
   return false;
 }
