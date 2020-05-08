@@ -65,7 +65,7 @@ async function validateTargetPath(options: MoveOptions): Promise<void> {
     // NOTE: This diverges from the `mv` command behavior.
     // `mv` would simply overwrite the `targetSource` file or folder, but I
     // find this behavior dangerous. We throw an error instead.
-    if (targetStat) {
+    if (targetStat && !targetStat.isDirectory()) {
       throw new Error(
         `Target "${targetPath}" already exists.`
       );
@@ -97,16 +97,20 @@ export async function validate(options: MoveOptions): Promise<MoveOptions> {
   return options;
 }
 
-export function createMovePaths(options: MoveOptions): PathMap {
+export async function createMovePaths(options: MoveOptions): PathMap {
   const {sourcePaths, targetPath} = options;
   const resolvedTargetPath = path.resolve(targetPath);
   if (sourcePaths.length === 1) {
+    const [sourcePath] = sourcePaths;
+    const targetStat = await gracefulFsStat(resolvedTargetPath);
+    const targetPath = targetStat && targetStat.isDirectory() ? path.join(resolvedTargetPath, path.basename(sourcePath)) : resolvedTargetPath;
     return {
-      [path.resolve(sourcePaths[0])]: resolvedTargetPath
+      [path.resolve(sourcePath)]: targetPath
     };
   }
   return sourcePaths.reduce((acc, sourcePath) => {
-    acc[path.resolve(sourcePath)] = path.join(resolvedTargetPath, path.basename(sourcePath))
+    const targetPath = path.join(resolvedTargetPath, path.basename(sourcePath));
+    acc[path.resolve(sourcePath)] = targetPath;
     return acc;
   }, {});
 }

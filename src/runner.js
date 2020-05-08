@@ -94,7 +94,7 @@ export async function executeTransform(options: NormalizedOptions): Promise<void
 type Options = MoveOptions & TransformOptions;
 
 export async function transform(options: Options): Promise<void> {
-  const expandedPaths = await expandDirectoryPaths(createMovePaths(await validate(options)));
+  const expandedPaths = await expandDirectoryPaths(await createMovePaths(await validate(options)));
   await executeTransform({
     ...options,
     expandedPaths

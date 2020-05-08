@@ -43,7 +43,7 @@ async function main() {
   debug('sourcePaths', sourcePaths.join(' '));
   debug('targetPath', targetPath);
 
-  const movePathMap = createMovePaths(await validate({
+  const movePathMap = await createMovePaths(await validate({
     sourcePaths,
     targetPath
   }));

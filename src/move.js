@@ -4,7 +4,7 @@ import fs from 'fs-extra';
 import {validate, createMovePaths, type MoveOptions, type PathMap} from './options';
 
 export async function move(options: MoveOptions): Promise<void> {
-  const pathMap = createMovePaths(await validate(options));
+  const pathMap = await createMovePaths(await validate(options));
   await movePaths(pathMap);
 }
 

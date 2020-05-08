@@ -20,7 +20,7 @@ async function readFileString(_path: string): Promise<string> {
 
 async function _exec(args: Array<string>, cwd=__dirname): Promise<ChildProcess> {
   const cliPath = path.join(PROJECT_ROOT, 'lib', 'cli.js');
-  const cmd = `node ${cliPath} "${args.join('" "')}"`;
+  const cmd = `${cliPath} ${args.join(' ')}`;
   const childProcess = await exec(cmd, {cwd});
   const {stdout, stderr} = childProcess;
   // eslint-disable-next-line no-console
@@ -176,14 +176,28 @@ proxyquire('./b');`
     });
   });
 
-  test.only('updates imports for paths with any extension on source paths', async () => {
+  test('updates imports for paths with any extension on source paths', async () => {
     await createTmpFs({
       './source-folder/a.sass': '@import "../b.sass";',
       './b.sass': ''
     }, async ({cwd, exec}) => {
       await exec(['./source-folder/*', '.']);
-      expect(await readFileString(path.join(cwd, './source-folder/a.sass')))
+      expect(await readFileString(path.join(cwd, './a.sass')))
         .toEqual('@import "./b.sass";');
+    });
+  });
+
+  test('updates imports for paths with any extension on source paths', async () => {
+    await createTmpFs({
+      './source-folder/a.sass': '@import "./b.sass";',
+      './source-folder/b.sass': '@import "../c.sass";',
+      './c.sass': ''
+    }, async ({cwd, exec}) => {
+      await exec(['./source-folder/*', '.']);
+      expect(await readFileString(path.join(cwd, './a.sass')))
+        .toEqual('@import "./b.sass";');
+      expect(await readFileString(path.join(cwd, './b.sass')))
+        .toEqual('@import "./c.sass";');
     });
   });
 

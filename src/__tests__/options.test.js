@@ -8,7 +8,7 @@ const join = path.join.bind(path, process.cwd());
 describe('normalize', () => {
 
   test('renames one file sourcePath to its targetPaths', async () => {
-    const pathMap = createMovePaths({
+    const pathMap = await createMovePaths({
       sourcePaths: ['./foo.js'],
       targetPath: './bar.js'
     });
@@ -18,7 +18,7 @@ describe('normalize', () => {
   });
 
   test('renames one directory sourcePath to its targetPaths', async () => {
-    const pathMap = createMovePaths({
+    const pathMap = await createMovePaths({
       sourcePaths: ['./a/s/d'],
       targetPath: './baz'
     });
@@ -28,7 +28,7 @@ describe('normalize', () => {
   });
 
   test('normalizes sourcePaths and targetPaths into a PathMap', async () => {
-    const pathMap = createMovePaths({
+    const pathMap = await createMovePaths({
       sourcePaths: ['./foo.js', './a/bar.js', './a/s/d'],
       targetPath: './baz'
     });
@@ -36,6 +36,18 @@ describe('normalize', () => {
       [join('./foo.js')]: join('./baz/foo.js'),
       [join('./a/bar.js')]: join('./baz/bar.js'),
       [join('./a/s/d')]: join('./baz/d')
+    });
+  });
+
+  test('normalizes directory targetPath into a PathMap', async () => {
+    const pathMap = await createMovePaths({
+      sourcePaths: ['./foo.js', './a/bar.js', './a/s/d'],
+      targetPath: './c'
+    });
+    expect(pathMap).toEqual({
+      [join('./foo.js')]: join('./c/foo.js'),
+      [join('./a/bar.js')]: join('./c/bar.js'),
+      [join('./a/s/d')]: join('./c/d')
     });
   });
 });
