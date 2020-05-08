@@ -6,8 +6,5 @@
       "corejs": 3,
       "targets": {"node": "current"}
     }]
-  ],
-  "plugins": [
-    "@babel/plugin-syntax-dynamic-import"
   ]
 }

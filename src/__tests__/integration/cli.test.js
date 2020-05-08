@@ -176,7 +176,7 @@ proxyquire('./b');`
     });
   });
 
-  test('updates imports for paths with any extension on source paths', async () => {
+  test.only('updates imports for paths with any extension on source paths', async () => {
     await createTmpFs({
       './source-folder/a.sass': '@import "../b.sass";',
       './b.sass': ''
