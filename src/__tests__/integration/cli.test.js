@@ -49,6 +49,17 @@ async function createTmpFs(definition: FsDefinition, callback: TmpFsCallback): P
 
 describe('cli', () => {
 
+  test('forwards recast options', async () => {
+    await createTmpFs({
+      './a.js': '',
+      './modules.js': `import './a.js'`
+    }, async ({cwd, exec}) => {
+      await exec(['--recast.quote="double"', './a.js', './b.js']);
+      expect(await readFileString(path.join(cwd, './modules.js')))
+        .toEqual(`import "./b.js"`);
+    });
+  });
+
   test('ignores require/import paths that dont match the moved paths', async () => {
     await createTmpFs({
       './a.js': '',
@@ -165,6 +176,17 @@ proxyquire('./b');`
     });
   });
 
+  test.only('updates imports for paths with any extension on source paths', async () => {
+    await createTmpFs({
+      './source-folder/a.sass': '@import "../b.sass";',
+      './b.sass': ''
+    }, async ({cwd, exec}) => {
+      await exec(['./source-folder/*', '.']);
+      expect(await readFileString(path.join(cwd, './source-folder/a.sass')))
+        .toEqual('@import "./b.sass";');
+    });
+  });
+
   test('updates imports inside non-js modules', async () => {
     await createTmpFs({
       './a.someWeirdExtension': `@import ' ./modles.js ';`,
@@ -246,17 +268,6 @@ proxyquire('./b');`
         .toEqual(`import './c/a.js'; import './c/b';`);
       expect(await isFile(path.join(cwd, './c/a.js'))).toEqual(true);
       expect(await isFile(path.join(cwd, './c/b.js'))).toEqual(true);
-    });
-  });
-
-  test('forwards recast options', async () => {
-    await createTmpFs({
-      './a.js': '',
-      './modules.js': `import './a.js'`
-    }, async ({cwd, exec}) => {
-      await exec(['--recast.quote="double"', './a.js', './b.js']);
-      expect(await readFileString(path.join(cwd, './modules.js')))
-        .toEqual(`import "./b.js"`);
     });
   });
 
