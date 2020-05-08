@@ -28,19 +28,25 @@ export default function transformer(file: any, api: any, options: Options) {
   const context = {j, file, options: options.options};
   const transform = j(file.source);
 
+  function applyUpdateNode(path) {
+    const importSourcePath = updateNodePath(context, path.value.source);
+    if (importSourcePath == null) {
+      return;
+    }
+    const importDeclaration = {
+      ...path.value,
+      source: importSourcePath
+    };
+    j(path).replaceWith(importDeclaration);
+  }
+
   transform
     .find(j.ImportDeclaration)
-    .forEach(path => {
-      const importSourcePath = updateNodePath(context, path.value.source);
-      if (importSourcePath == null) {
-        return;
-      }
-      const importDeclaration = {
-        ...path.value,
-        source: importSourcePath
-      };
-      j(path).replaceWith(importDeclaration);
-    });
+    .forEach(applyUpdateNode);
+
+  transform
+    .find(j.ImportExpression)
+    .forEach(applyUpdateNode);
 
   transform
     .find(j.CallExpression)
