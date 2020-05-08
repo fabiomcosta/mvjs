@@ -56,9 +56,10 @@ export default function transformer(file: any, api: any, options: Options) {
       if (importSourcePath == null) {
         return;
       }
+      const otherArguments = path.value.arguments.slice(1);
       const importDeclaration = {
         ...path.value,
-        arguments: [importSourcePath]
+        arguments: [importSourcePath, ...otherArguments]
       };
       j(path).replaceWith(importDeclaration);
     });

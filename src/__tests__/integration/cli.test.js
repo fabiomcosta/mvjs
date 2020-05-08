@@ -118,7 +118,7 @@ require('./a.js');
 require(\`./a\`);
 import _3 from './a';
 import './a';
-proxyquire('./a');`
+proxyquire('./a', {});`
     }, async ({cwd, exec}) => {
       await exec(['./a.js', './b.js']);
       expect(await readFileString(path.join(cwd, './modules.js'))).toEqual(`
@@ -127,7 +127,7 @@ require('./b.js');
 require(\`./b\`);
 import _3 from './b';
 import './b';
-proxyquire('./b');`
+proxyquire('./b', {});`
       );
     });
   });
@@ -176,7 +176,7 @@ proxyquire('./b');`
     });
   });
 
-  test('updates imports for paths with any extension on source paths', async () => {
+  test('updates imports for paths with any extension on a single source paths', async () => {
     await createTmpFs({
       './source-folder/a.sass': '@import "../b.sass";',
       './b.sass': ''
@@ -187,7 +187,7 @@ proxyquire('./b');`
     });
   });
 
-  test('updates imports for paths with any extension on source paths', async () => {
+  test('updates imports for paths with any extension on multiple source paths', async () => {
     await createTmpFs({
       './source-folder/a.sass': '@import "./b.sass";',
       './source-folder/b.sass': '@import "../c.sass";',
