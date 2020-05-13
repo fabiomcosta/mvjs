@@ -33,6 +33,9 @@ export default function transformer(file: any, api: any, options: Options) {
     if (importSourcePath == null) {
       return;
     }
+    // Keeping comments
+    // $FlowFixMe sounds like the comments field is new to Nodes and the Flow type is outdated
+    importSourcePath.comments = path.value.source.comments;
     const importDeclaration = {
       ...path.value,
       source: importSourcePath
@@ -52,11 +55,14 @@ export default function transformer(file: any, api: any, options: Options) {
     .find(j.CallExpression)
     .filter(p => isImportOrRequireNode(j, p.value))
     .forEach(path => {
-      const importSourcePath = updateNodePath(context, path.value.arguments[0]);
+      const [source, ...otherArguments] = path.value.arguments;
+      const importSourcePath = updateNodePath(context, source);
       if (importSourcePath == null) {
         return;
       }
-      const otherArguments = path.value.arguments.slice(1);
+      // Keeping comments
+      // $FlowFixMe sounds like the comments field is new to Nodes and the Flow type is outdated
+      importSourcePath.comments = source.comments;
       const importDeclaration = {
         ...path.value,
         arguments: [importSourcePath, ...otherArguments]

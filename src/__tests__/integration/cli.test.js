@@ -65,8 +65,8 @@ describe('cli', () => {
       './a.js': '',
       './modules.js': `
 // dependency or built-in
-import('lodash');
-require('lodash');
+import(/* comment */ 'lodash');
+require(/* comment */ 'lodash');
 import 'lodash';
 import _ from 'lodash';
 
@@ -87,8 +87,8 @@ require(x + '1');`
       await exec(['./a.js', './b.js']);
       expect(await readFileString(path.join(cwd, './modules.js'))).toEqual(`
 // dependency or built-in
-import('lodash');
-require('lodash');
+import(/* comment */ 'lodash');
+require(/* comment */ 'lodash');
 import 'lodash';
 import _ from 'lodash';
 
