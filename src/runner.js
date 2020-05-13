@@ -13,8 +13,9 @@ const debug = createDebug(__filename);
 type TransformOptions = {
   // see https://github.com/facebook/jscodeshift#parser
   parser?: 'flow' | 'babylon' | 'babel',
-  // see https://github.com/benjamn/recast/blob/master/lib/options.js
-  recastOptions?: Object
+  // see https://github.com/benjamn/recast/blob/master/lib/options.ts
+  recastOptions?: any,
+  ignorePattern: $ReadOnlyArray<string>
 };
 
 type NormalizedOptions = {
@@ -57,7 +58,7 @@ async function genericTransform(paths: Array<string>, options: ParsedOptions): P
 
 export async function executeTransform(options: NormalizedOptions): Promise<void> {
 
-  const {expandedPaths} = options;
+  const {expandedPaths, ignorePattern} = options;
   debug('expandedPaths', JSON.stringify(expandedPaths, null, 2));
 
   const projectPath = await findProjectPath();
@@ -71,7 +72,7 @@ export async function executeTransform(options: NormalizedOptions): Promise<void
     info(`Recast options:\n${JSON.stringify(recastOptions, null, 2)}`);
   }
 
-  const {js: allJSPaths, others: allOtherPaths} = await findAllPathsCategorized(projectPath);
+  const {js: allJSPaths, others: allOtherPaths} = await findAllPathsCategorized(projectPath, {ignorePattern});
   debug('Detected js paths', `\n  ${allJSPaths.join('\n  ')}`);
 
   const transformOptions: ParsedOptions = {

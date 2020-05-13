@@ -100,17 +100,12 @@ export async function validate(options: MoveOptions): Promise<MoveOptions> {
 export async function createMovePaths(options: MoveOptions): PathMap {
   const {sourcePaths, targetPath} = options;
   const resolvedTargetPath = path.resolve(targetPath);
-  if (sourcePaths.length === 1) {
-    const [sourcePath] = sourcePaths;
-    const targetStat = await gracefulFsStat(resolvedTargetPath);
-    const targetPath = targetStat && targetStat.isDirectory() ? path.join(resolvedTargetPath, path.basename(sourcePath)) : resolvedTargetPath;
-    return {
-      [path.resolve(sourcePath)]: targetPath
-    };
-  }
+  const targetStat = await gracefulFsStat(resolvedTargetPath);
+  const getTargetPath = targetStat && targetStat.isDirectory()
+    ? sourcePath => path.join(resolvedTargetPath, path.basename(sourcePath))
+    : () => resolvedTargetPath;
   return sourcePaths.reduce((acc, sourcePath) => {
-    const targetPath = path.join(resolvedTargetPath, path.basename(sourcePath));
-    acc[path.resolve(sourcePath)] = targetPath;
+    acc[path.resolve(sourcePath)] = getTargetPath(sourcePath);
     return acc;
   }, {});
 }

@@ -60,6 +60,20 @@ describe('cli', () => {
     });
   });
 
+  test('ignores paths matching multiple patterns', async () => {
+    await createTmpFs({
+      './a.js': '',
+      './modules.js': `import './a.js'`,
+      './modules.d.js': `import './a.js'`
+    }, async ({cwd, exec}) => {
+      await exec(['--ignore-pattern="*.d.js"', '--ignore-pattern="bogus"', './a.js', './b.js']);
+      expect(await readFileString(path.join(cwd, './modules.js')))
+        .toEqual(`import './b.js'`);
+      expect(await readFileString(path.join(cwd, './modules.d.js')))
+        .toEqual(`import './a.js'`);
+    });
+  });
+
   test('ignores require/import paths that dont match the moved paths', async () => {
     await createTmpFs({
       './a.js': '',

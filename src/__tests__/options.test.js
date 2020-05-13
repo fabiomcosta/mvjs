@@ -2,13 +2,25 @@
 
 import path from 'path';
 import {createMovePaths} from '../options';
+import {createTemporaryFs} from './utils';
 
-const join = path.join.bind(path, process.cwd());
+async function createFsAndMovePaths({sourcePaths, targetPath}) {
+  const {cwd} = await createTemporaryFs({
+    ...sourcePaths.reduce((acc, s) => (acc[s] = '', acc), {}),
+    [targetPath]: ''
+  });
+  const join = path.join.bind(path, cwd);
+  const pathMap = await createMovePaths({
+    sourcePaths: sourcePaths.map(s => join(s)),
+    targetPath: join(targetPath)
+  });
+  return {join, pathMap};
+}
 
 describe('normalize', () => {
 
   test('renames one file sourcePath to its targetPaths', async () => {
-    const pathMap = await createMovePaths({
+    const {join, pathMap} = await createFsAndMovePaths({
       sourcePaths: ['./foo.js'],
       targetPath: './bar.js'
     });
@@ -18,7 +30,7 @@ describe('normalize', () => {
   });
 
   test('renames one directory sourcePath to its targetPaths', async () => {
-    const pathMap = await createMovePaths({
+    const {join, pathMap} = await createFsAndMovePaths({
       sourcePaths: ['./a/s/d'],
       targetPath: './baz'
     });
@@ -28,7 +40,7 @@ describe('normalize', () => {
   });
 
   test('normalizes sourcePaths and targetPaths into a PathMap', async () => {
-    const pathMap = await createMovePaths({
+    const {join, pathMap} = await createFsAndMovePaths({
       sourcePaths: ['./foo.js', './a/bar.js', './a/s/d'],
       targetPath: './baz'
     });
@@ -40,7 +52,7 @@ describe('normalize', () => {
   });
 
   test('normalizes directory targetPath into a PathMap', async () => {
-    const pathMap = await createMovePaths({
+    const {join, pathMap} = await createFsAndMovePaths({
       sourcePaths: ['./foo.js', './a/bar.js', './a/s/d'],
       targetPath: './c'
     });

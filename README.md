@@ -53,18 +53,25 @@ $ mvjs --help
 mvjs - moves a JavaScript module and updates all import references in the project.
 
 Options:
-  --version  Show version number                                                                               [boolean]
-  --parser   jscodeshift's parser option.
-             See https://github.com/facebook/jscodeshift#parser                                        [default: "flow"]
-  --help     Show help                                                                                         [boolean]
+  --version         Show version number                                                                        [boolean]
+  --parser          jscodeshift's parser option.
+                    See https://github.com/facebook/jscodeshift#parser                        [string] [default: "flow"]
+  --ignore-pattern  Pattern of files that won't have their file references updated                              [string]
+  --help            Show help                                                                                  [boolean]
 
 Examples:
-  mvjs ./a.js ./b.js                          Moves "a.js" to "b.js" and updates the other modules importing "a.js" to
-                                              now import "b.js".
-  mvjs --recast.quote='double' ./a.js ./b.js  Recast options can be changed by using --recast.optionName notation.
-                                              In this example the codemoded files are going to have double quotes for
-                                              all strings.
-                                              See https://github.com/benjamn/recast/blob/master/lib/options.js
+  cli.js ./a.js ./b.js                                          Moves "a.js" to "b.js" and updates the other modules
+                                                                importing "a.js" to now import "b.js".
+  cli.js --recast.quote='double' ./a.js ./b.js                  Recast options can be changed by using
+                                                                --recast.optionName notation.
+                                                                In this example the codemoded files are going to have
+                                                                double quotes for all strings.
+                                                                See https://github.com/benjamn/recast/blob/master/lib/op
+                                                                tions.ts
+  cli.js --ignore-pattern='*.d.ts'                              Ignore patterns with the familiar gitignore syntax
+  --ignore-pattern='*.js.flow' ./a.js ./b.js                    defined at https://git-scm.com/docs/gitignore
+                                                                Multiple patterns can be ignored by providing multiple
+                                                                options.
 ```
 
 ## Example

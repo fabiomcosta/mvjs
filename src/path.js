@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import findUp from 'find-up';
 import {promisify} from 'util';
+import ignore from 'ignore';
 import requireResolve from './requireResolve';
 import {createDebug, warn} from './log';
 import {JS_EXTENSIONS_DOTTED, type PathMap} from './options';
@@ -197,6 +198,10 @@ function pathHasJSExtension(_path: string): boolean {
 
 const IGNORED_FOLDERS = new Set(['node_modules', '.git', '.hg']);
 
+type FindAllOptions = {
+  ignorePattern: $ReadOnlyArray<string>
+};
+
 // TODO: use `git ls-files` and `hg manifest` to consider ignored files.
 // Note that the .git and .hg folder would need to match the package.json
 // folder for this to work properly.
@@ -204,9 +209,19 @@ export async function findAllJSPaths(rootPath: string): Promise<Array<string>> {
   return await findAllPaths(rootPath, JS_EXTENSIONS_DOTTED);
 }
 
-export async function findAllPathsCategorized(rootPath: string): Promise<{ js: Array<string>, others: Array<string> }> {
+function applyIgnoreFilter(paths, ignorePattern) {
+  if (!ignorePattern.length) {
+    return paths;
+  }
+  const cwd = process.cwd();
+  const ig = ignore().add(ignorePattern);
+  return paths.filter(absPath => !ig.ignores(path.relative(cwd, absPath)));
+}
+
+export async function findAllPathsCategorized(rootPath: string, options: FindAllOptions): Promise<{ js: Array<string>, others: Array<string> }> {
   const allPaths = await findAllPaths(rootPath);
-  const [js, others] = splitByFilter(allPaths, pathHasJSExtension);
+  const filteredPaths = applyIgnoreFilter(allPaths, options.ignorePattern);
+  const [js, others] = splitByFilter(filteredPaths, pathHasJSExtension);
   return {js, others};
 }
 
