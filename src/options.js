@@ -101,7 +101,7 @@ export async function createMovePaths(options: MoveOptions): PathMap {
   const {sourcePaths, targetPath} = options;
   const resolvedTargetPath = path.resolve(targetPath);
   const targetStat = await gracefulFsStat(resolvedTargetPath);
-  const getTargetPath = targetStat && targetStat.isDirectory()
+  const getTargetPath: string => string = targetStat && targetStat.isDirectory()
     ? sourcePath => path.join(resolvedTargetPath, path.basename(sourcePath))
     : () => resolvedTargetPath;
   return sourcePaths.reduce((acc, sourcePath) => {

@@ -4,10 +4,10 @@ import path from 'path';
 import {createMovePaths} from '../options';
 import {createTemporaryFs} from './utils';
 
-async function createFsAndMovePaths({sourcePaths, targetPath}) {
+async function createFsAndMovePaths({sourcePaths, targetPath}: {sourcePaths: $ReadOnlyArray<string>, targetPath: string}) {
   const {cwd} = await createTemporaryFs({
-    ...sourcePaths.reduce((acc, s) => (acc[s] = '', acc), {}),
-    [targetPath]: ''
+    [targetPath]: '',
+    ...sourcePaths.reduce((acc, s) => (acc[s] = '', acc), {})
   });
   const join = path.join.bind(path, cwd);
   const pathMap = await createMovePaths({
@@ -42,7 +42,7 @@ describe('normalize', () => {
   test('normalizes sourcePaths and targetPaths into a PathMap', async () => {
     const {join, pathMap} = await createFsAndMovePaths({
       sourcePaths: ['./foo.js', './a/bar.js', './a/s/d'],
-      targetPath: './baz'
+      targetPath: './baz/'
     });
     expect(pathMap).toEqual({
       [join('./foo.js')]: join('./baz/foo.js'),
@@ -54,7 +54,7 @@ describe('normalize', () => {
   test('normalizes directory targetPath into a PathMap', async () => {
     const {join, pathMap} = await createFsAndMovePaths({
       sourcePaths: ['./foo.js', './a/bar.js', './a/s/d'],
-      targetPath: './c'
+      targetPath: './c/'
     });
     expect(pathMap).toEqual({
       [join('./foo.js')]: join('./c/foo.js'),
