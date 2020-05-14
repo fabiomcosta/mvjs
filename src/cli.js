@@ -46,6 +46,13 @@ process.on('unhandledRejection', e => {
   process.stderr.write(errStringRep);
 });
 
+function toArray(obj: Array<string> | string | void | null): $ReadOnlyArray<string> {
+  if (obj == null) {
+    return [];
+  }
+  return Array.isArray(obj) ? obj : [obj];
+}
+
 async function main() {
   const allNonOptionalArgs = argv._.slice();
   const targetPath = allNonOptionalArgs.pop();
@@ -57,11 +64,12 @@ async function main() {
     sourcePaths,
     targetPath
   }));
+  const {parser, recast, ignorePattern} = argv;
   const transformOptions = {
     expandedPaths: await expandDirectoryPaths(movePathMap),
-    ignorePattern: Array.isArray(argv.ignorePattern) ? argv.ignorePattern : [argv.ignorePattern],
-    parser: argv.parser,
-    recastOptions: argv.recast
+    ignorePattern: toArray(ignorePattern),
+    parser: parser,
+    recastOptions: recast
   };
   await executeTransform(transformOptions);
   await movePaths(movePathMap);
