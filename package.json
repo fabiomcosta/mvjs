@@ -1,6 +1,6 @@
 {
   "name": "@fabiomcosta/mvjs",
-  "version": "1.15.1",
+  "version": "1.15.2",
   "description": "Easily move files and directories around your JavaScript project.",
   "repository": "https://github.com/fabiomcosta/mvjs",
   "main": "lib/index.js",
