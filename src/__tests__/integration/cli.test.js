@@ -215,6 +215,21 @@ proxyquire('./b', {});`
     });
   });
 
+  test('updates imports for paths with any extension on multiple source paths and ignores binary files', async () => {
+    await createTmpFs({
+      // isbinaryfile considers this a binary
+      './source-folder/a.pdf': '%PDF- @import "./b.sass";',
+      './source-folder/b.sass': '@import "../c.sass";',
+      './c.sass': ''
+    }, async ({cwd, exec}) => {
+      await exec(['./source-folder/*', '.']);
+      expect(await readFileString(path.join(cwd, './a.pdf')))
+        .toEqual('%PDF- @import "./b.sass";');
+      expect(await readFileString(path.join(cwd, './b.sass')))
+        .toEqual('@import "./c.sass";');
+    });
+  });
+
   test('updates imports inside non-js modules', async () => {
     await createTmpFs({
       './a.someWeirdExtension': `@import ' ./modles.js ';`,

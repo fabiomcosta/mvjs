@@ -33,7 +33,7 @@ async function genericTransform(paths: Array<string>, options: ParsedOptions): P
     const isFileBinary = await isBinaryFile(content);
     // Ignore binary files
     if (isFileBinary) {
-      return;
+      continue;
     }
 
     // Best guess on matching file paths on non-js files.
@@ -41,7 +41,9 @@ async function genericTransform(paths: Array<string>, options: ParsedOptions): P
     //
     // Some of the rules include:
     // * the path can't have spaces
-    const transformedContent = String(content).replace(/(['"])([ \t]*\.\.?\/[^\1\s*]*?)[ \t]*\1/g, (_, quote, filePath) => {
+    // * the path has to be relative
+    // * the path has to be surrounded by either single or double quotes
+    const transformedContent = String(content).replace(/(['"])([\t ]*\.\.?\/[^\1\t ]*?)[\t ]*\1/g, (_, quote, filePath) => {
       // Context object with a similar shape to the one provided by the jscodeshift
       // transform. It contains the values that are actually used by `updateSourcePath`.
       const context = {
