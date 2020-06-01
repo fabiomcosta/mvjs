@@ -1,6 +1,6 @@
 import path from 'path';
-import { isBinaryFile } from 'isbinaryfile';
-import { createDebug, info } from './log';
+import {isBinaryFile} from 'isbinaryfile';
+import {createDebug, info} from './log';
 import {
   findAllPathsCategorized,
   findProjectPath,
@@ -9,9 +9,9 @@ import {
   writeFile,
   updateSourcePath,
 } from './path';
-import { validate, createMovePaths, DEFAULT, JS_EXTENSIONS } from './options';
-import type { MoveOptions, PathMap } from './options';
-import type { ParsedOptions } from './transform';
+import {validate, createMovePaths, DEFAULT, JS_EXTENSIONS} from './options';
+import type {MoveOptions, PathMap} from './options';
+import type {ParsedOptions} from './transform';
 import Runner from 'jscodeshift/src/Runner';
 
 const debug = createDebug(__filename);
@@ -29,7 +29,7 @@ type NormalizedOptions = {
 } & TransformOptions;
 
 async function promiseObject(object: {
-  [string]: Promise<unknown> | unknown;
+  [key: string]: Promise<unknown> | unknown;
 }): Promise<{ [string]: unknown }> {
   return await Promise.all(
     Object.entries(object).map((entry) => Promise.all(entry))
@@ -46,9 +46,8 @@ async function genericTransform(
   paths: Array<string>,
   options: ParsedOptions
 ): Promise<void> {
-  // $FlowFixMe :shrug:
-  for await (const { _path, content } of paths.map((p) =>
-    promiseObject({ _path: p, content: readFile(p) })
+  for await (const {_path, content} of paths.map((p) =>
+    promiseObject({_path: p, content: readFile(p)})
   )) {
     const isFileBinary = await isBinaryFile(content);
     // Ignore binary files
@@ -70,7 +69,7 @@ async function genericTransform(
         // transform. It contains the values that are actually used by `updateSourcePath`.
         const context = {
           j: null,
-          file: { path: _path, source: '' },
+          file: {path: _path, source: ''},
           options,
         };
         return `${quote}${updateSourcePath(context, filePath.trim())}${quote}`;
@@ -84,13 +83,13 @@ async function genericTransform(
 export async function executeTransform(
   options: NormalizedOptions
 ): Promise<void> {
-  const { expandedPaths, ignorePattern } = options;
+  const {expandedPaths, ignorePattern} = options;
   debug('expandedPaths', JSON.stringify(expandedPaths, null, 2));
 
   const projectPath = await findProjectPath();
   info(`Detected project path: ${projectPath}`);
 
-  const recastOptions = { ...DEFAULT.recast, ...options.recastOptions };
+  const recastOptions = {...DEFAULT.recast, ...options.recastOptions};
   // I'm considering that when there are no recast options it's because the
   // user doesn't care much about these options, so we only log them when
   // any recast option is passed.
@@ -101,7 +100,7 @@ export async function executeTransform(
   const {
     js: allJSPaths,
     others: allOtherPaths,
-  } = await findAllPathsCategorized(projectPath, { ignorePattern });
+  } = await findAllPathsCategorized(projectPath, {ignorePattern});
   debug('Detected js paths', `\n  ${allJSPaths.join('\n  ')}`);
 
   const transformOptions: ParsedOptions = {

@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
 import yargs from 'yargs';
-import { executeTransform } from './runner';
-import { movePaths } from './move';
-import { validate, createMovePaths, DEFAULT } from './options';
-import { createDebug } from './log';
-import { expandDirectoryPaths } from './path';
+import {executeTransform} from './runner';
+import {movePaths} from './move';
+import {validate, createMovePaths, DEFAULT} from './options';
+import {createDebug} from './log';
+import {expandDirectoryPaths} from './path';
 
 const debug = createDebug(__filename);
 
-const { argv } = yargs
+const {argv} = yargs
   .wrap(Math.min(120, yargs.terminalWidth()))
   .usage(
     `$0 - moves a JavaScript module and updates all import references in the project.`
@@ -50,9 +50,7 @@ process.on('unhandledRejection', (e) => {
   process.stderr.write(errStringRep);
 });
 
-function toArray(
-  obj: Array<string> | string | void | null
-): Array<string> {
+function toArray(obj: Array<string> | string | void | null): Array<string> {
   if (obj == null) {
     return [];
   }
@@ -72,7 +70,7 @@ async function main() {
       targetPath,
     })
   );
-  const { parser, recast, ignorePattern } = argv;
+  const {parser, recast, ignorePattern} = argv;
   const transformOptions = {
     expandedPaths: await expandDirectoryPaths(movePathMap),
     ignorePattern: toArray(ignorePattern),

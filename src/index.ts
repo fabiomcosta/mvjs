@@ -1,2 +1,2 @@
-export { transform } from './runner';
-export { move } from './move';
+export {transform} from './runner';
+export {move} from './move';

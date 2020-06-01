@@ -1,7 +1,7 @@
 import resolve from 'enhanced-resolve';
-import type { Context } from './transform';
-import { warn } from './log';
-import { JS_EXTENSIONS_DOTTED } from './options';
+import type {Context} from './transform';
+import {warn} from './log';
+import {JS_EXTENSIONS_DOTTED} from './options';
 
 const enhancedResolve = resolve.create.sync({
   symlinks: false,

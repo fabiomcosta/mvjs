@@ -1,20 +1,20 @@
-import { updateNodePath, isImportOrRequireNode } from './ast';
-import type { PathMap } from './options';
+import {updateNodePath, isImportOrRequireNode} from './ast';
+import type {PathMap} from './options';
 
 export type File = {
-  source: string,
-  path: string,
+  source: string;
+  path: string;
 };
 
 export type ParsedOptions = {
-  expandedPaths: PathMap,
-  recastOptions?: Object,
+  expandedPaths: PathMap;
+  recastOptions?: Object;
 };
 
 export type Context = {
-  options: ParsedOptions,
-  j: any,
-  file: File,
+  options: ParsedOptions;
+  j: any;
+  file: File;
 };
 
 type Options = {
@@ -27,7 +27,7 @@ export default function transformer(
   options: Options
 ): string {
   const j = api.jscodeshift;
-  const context = { j, file, options: options.options };
+  const context = {j, file, options: options.options};
   const transform = j(file.source);
 
   function applyUpdateNode(path) {

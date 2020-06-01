@@ -2,9 +2,9 @@ import fs from 'fs';
 import fse from 'fs-extra';
 import os from 'os';
 import path from 'path';
-import { promisify } from 'util';
+import {promisify} from 'util';
 import pkg from '../../package.json';
-import type { Context, ParsedOptions } from '../transform';
+import type {Context, ParsedOptions} from '../transform';
 
 const mkdtemp = promisify(fs.mkdtemp);
 const writeFile = promisify(fs.writeFile);
@@ -33,8 +33,8 @@ export function createFakeContext(
 ): Context {
   return {
     j: {},
-    file: { path: '', source: '', ...file },
-    options: { expandedPaths: {}, ...options },
+    file: {path: '', source: '', ...file},
+    options: {expandedPaths: {}, ...options},
   };
 }
 
@@ -42,7 +42,7 @@ export type FsDefinition = {
   [path: string]: string | Promise<string>;
 };
 type FsDescriptor = {
-  cwd: string,
+  cwd: string;
 };
 export async function createTemporaryFs(
   definition: FsDefinition
