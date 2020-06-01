@@ -35,7 +35,7 @@ type TmpFsObject = {
   cwd: string;
   exec: (path: Array<string>) => Promise<ChildProcess>;
 };
-type TmpFsCallback = (TmpFsObject) => unknown;
+type TmpFsCallback = (a: TmpFsObject) => unknown;
 
 async function createTmpFs(
   definition: FsDefinition,

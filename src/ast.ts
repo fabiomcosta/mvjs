@@ -1,17 +1,17 @@
 import {warn} from './log';
 import {updateSourcePath} from './path';
 import type {Context} from './transform';
-import type {
-  Node,
-  TemplateLiteral,
-  Literal,
-  CallExpression,
-} from 'ast-types-flow';
+
+// TODO: need to find proper declaration for AST nodes on TS
+type TemplateLiteral = any;
+type Node = any;
+type CallExpression = any;
+type Literal = any;
 
 function updateTemplateLiteralPath(
   context: Context,
   templateLiteral: TemplateLiteral
-): ?TemplateLiteral {
+): TemplateLiteral | null | undefined {
   const {j, file} = context;
   if (templateLiteral.expressions.length || templateLiteral.quasis.length > 1) {
     return warn(
@@ -48,7 +48,7 @@ function updateLiteralPath(context: Context, literal: Literal): Literal {
 export function updateNodePath(
   context: Context,
   originalSourcePathNode: Node
-): ?Node {
+): Node | null | undefined {
   const {file} = context;
   switch (originalSourcePathNode.type) {
     case 'Literal':

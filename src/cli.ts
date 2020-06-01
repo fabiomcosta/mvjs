@@ -41,11 +41,11 @@ const {argv} = yargs
   .demandCommand(2)
   .help();
 
-process.on('unhandledRejection', (e) => {
-  const errStringRep = e
-    ? e.stack
-      ? e.stack
-      : e.message
+process.on('unhandledRejection', (error?: Error | null | undefined) => {
+  const errStringRep = error
+    ? error.stack
+      ? error.stack
+      : error.message
     : '<undefined-error>';
   process.stderr.write(errStringRep);
 });

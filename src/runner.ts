@@ -30,7 +30,7 @@ type NormalizedOptions = {
 
 async function promiseObject(object: {
   [key: string]: Promise<unknown> | unknown;
-}): Promise<{ [string]: unknown }> {
+}): Promise<{ [key: string]: unknown }> {
   return await Promise.all(
     Object.entries(object).map((entry) => Promise.all(entry))
   ).then((entries) =>
@@ -38,7 +38,7 @@ async function promiseObject(object: {
       const [k, v] = entry;
       acc[k] = v;
       return acc;
-    }, {})
+    }, {} as {[key: string]: unknown})
   );
 }
 
