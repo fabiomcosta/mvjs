@@ -42,7 +42,7 @@ export type FsDefinition = {
   [path: string]: string | Promise<string>;
 };
 type FsDescriptor = {
-  cwd: string;
+  cwd: string,
 };
 export async function createTemporaryFs(
   definition: FsDefinition

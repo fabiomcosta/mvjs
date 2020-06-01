@@ -2,19 +2,19 @@ import { updateNodePath, isImportOrRequireNode } from './ast';
 import type { PathMap } from './options';
 
 export type File = {
-  source: string;
-  path: string;
+  source: string,
+  path: string,
 };
 
 export type ParsedOptions = {
-  expandedPaths: PathMap;
-  recastOptions?: Object;
+  expandedPaths: PathMap,
+  recastOptions?: Object,
 };
 
 export type Context = {
-  options: ParsedOptions;
-  j: any;
-  file: File;
+  options: ParsedOptions,
+  j: any,
+  file: File,
 };
 
 type Options = {

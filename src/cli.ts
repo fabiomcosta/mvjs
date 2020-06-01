@@ -52,7 +52,7 @@ process.on('unhandledRejection', (e) => {
 
 function toArray(
   obj: Array<string> | string | void | null
-): Readonly<Array<string>> {
+): Array<string> {
   if (obj == null) {
     return [];
   }

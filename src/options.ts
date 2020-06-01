@@ -11,7 +11,7 @@ export type MoveOptions = {
 };
 
 export type PathMap = {
-  [path: string]: string;
+  [key: string]: string,
 };
 
 export const DEFAULT = {

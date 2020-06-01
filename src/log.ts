@@ -30,11 +30,11 @@ export function createDebug(filename: string): Debugger {
 }
 
 type LogOptions = {
-  file?: File;
+  file?: File,
   loc?: {
-    start: { line: number; column: number };
-    end: { line: number; column: number };
-  };
+    start: { line: number, column: number },
+    end: { line: number, column: number },
+  },
 };
 
 function createFrame({ file, loc }: LogOptions = {}): string {

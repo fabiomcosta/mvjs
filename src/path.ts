@@ -236,7 +236,7 @@ function pathHasJSExtension(_path: string): boolean {
 const IGNORED_FOLDERS = new Set(['node_modules', '.git', '.hg']);
 
 type FindAllOptions = {
-  ignorePattern: Array<string>;
+  ignorePattern: Array<string>,
 };
 
 // TODO: use `git ls-files` and `hg manifest` to consider ignored files.
@@ -258,7 +258,7 @@ function applyIgnoreFilter(paths, ignorePattern) {
 export async function findAllPathsCategorized(
   rootPath: string,
   options: FindAllOptions
-): Promise<{ js: Array<string>; others: Array<string> }> {
+): Promise<{ js: Array<string>, others: Array<string> }> {
   const allPaths = await findAllPaths(rootPath);
   const filteredPaths = applyIgnoreFilter(allPaths, options.ignorePattern);
   const [js, others] = splitByFilter(filteredPaths, pathHasJSExtension);
