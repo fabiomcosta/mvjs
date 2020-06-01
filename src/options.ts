@@ -1,33 +1,37 @@
-// @flow
-
 import fs from 'fs';
-import type {Stats} from 'fs';
+import type { Stats } from 'fs';
 import path from 'path';
-import {promisify} from 'util';
+import { promisify } from 'util';
 
 const fsStat = promisify(fs.stat);
 
 export type MoveOptions = {
-  sourcePaths: Array<string>,
-  targetPath: string,
+  sourcePaths: Array<string>;
+  targetPath: string;
 };
 
 export type PathMap = {
-  [string]: string
+  [path: string]: string;
 };
 
 export const DEFAULT = {
   parser: 'flow',
-  recast: {quote: 'single'}
+  recast: { quote: 'single' },
 };
 
-export const JS_EXTENSIONS: Set<string> = new Set(
-  ['js', 'jsx', 'mjs', 'es', 'es6', 'ts', 'tsx']
-);
+export const JS_EXTENSIONS: Set<string> = new Set([
+  'js',
+  'jsx',
+  'mjs',
+  'es',
+  'es6',
+  'ts',
+  'tsx',
+]);
 
-export const JS_EXTENSIONS_DOTTED: Set<string> = new Set(
-  [...Array.from(JS_EXTENSIONS, ext => `.${ext}`)]
-);
+export const JS_EXTENSIONS_DOTTED: Set<string> = new Set([
+  ...Array.from(JS_EXTENSIONS, (ext) => `.${ext}`),
+]);
 
 async function gracefulFsStat(_path: string): Promise<?Stats> {
   try {
@@ -42,23 +46,23 @@ async function gracefulFsStat(_path: string): Promise<?Stats> {
 }
 
 async function validateSourcePaths(options: MoveOptions): Promise<void> {
-  const {sourcePaths} = options;
+  const { sourcePaths } = options;
 
   // All sourcePaths should exist and should be files
-  await Promise.all(sourcePaths
-    .map(sourcePath => ({sourcePath, stat: gracefulFsStat(sourcePath)}))
-    .map(async ({sourcePath, stat}) => {
-      const sourceStat = await stat;
-      if (!sourceStat) {
-        throw new Error(
-          `Source "${sourcePath}" doesn't exist.`
-        );
-      }
-    }));
+  await Promise.all(
+    sourcePaths
+      .map((sourcePath) => ({ sourcePath, stat: gracefulFsStat(sourcePath) }))
+      .map(async ({ sourcePath, stat }) => {
+        const sourceStat = await stat;
+        if (!sourceStat) {
+          throw new Error(`Source "${sourcePath}" doesn't exist.`);
+        }
+      })
+  );
 }
 
 async function validateTargetPath(options: MoveOptions): Promise<void> {
-  const {sourcePaths, targetPath} = options;
+  const { sourcePaths, targetPath } = options;
   const targetStat = await gracefulFsStat(targetPath);
   if (sourcePaths.length === 1) {
     // The targetPath should not exist
@@ -66,18 +70,14 @@ async function validateTargetPath(options: MoveOptions): Promise<void> {
     // `mv` would simply overwrite the `targetSource` file or folder, but I
     // find this behavior dangerous. We throw an error instead.
     if (targetStat && !targetStat.isDirectory()) {
-      throw new Error(
-        `Target "${targetPath}" already exists.`
-      );
+      throw new Error(`Target "${targetPath}" already exists.`);
     }
   } else {
     // For multiple sourcePaths...
 
     // targetPath needs to exists.
     if (!targetStat) {
-      throw new Error(
-        `Target "${targetPath}" doesn't exists.`
-      );
+      throw new Error(`Target "${targetPath}" doesn't exists.`);
     }
 
     // targetPath needs to be a folder.
@@ -92,18 +92,19 @@ async function validateTargetPath(options: MoveOptions): Promise<void> {
 export async function validate(options: MoveOptions): Promise<MoveOptions> {
   await Promise.all([
     validateSourcePaths(options),
-    validateTargetPath(options)
+    validateTargetPath(options),
   ]);
   return options;
 }
 
-export async function createMovePaths(options: MoveOptions): PathMap {
-  const {sourcePaths, targetPath} = options;
+export async function createMovePaths(options: MoveOptions): Promise<PathMap> {
+  const { sourcePaths, targetPath } = options;
   const resolvedTargetPath = path.resolve(targetPath);
   const targetStat = await gracefulFsStat(resolvedTargetPath);
-  const getTargetPath: string => string = targetStat && targetStat.isDirectory()
-    ? sourcePath => path.join(resolvedTargetPath, path.basename(sourcePath))
-    : () => resolvedTargetPath;
+  const getTargetPath: (sourcePath: string) => string =
+    targetStat && targetStat.isDirectory()
+      ? (sourcePath) => path.join(resolvedTargetPath, path.basename(sourcePath))
+      : () => resolvedTargetPath;
   return sourcePaths.reduce((acc, sourcePath) => {
     acc[path.resolve(sourcePath)] = getTargetPath(sourcePath);
     return acc;

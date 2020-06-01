@@ -1,18 +1,16 @@
-// @flow
-
-import {basename, dirname, extname} from 'path';
-import {codeFrameColumns} from '@babel/code-frame';
+import { basename, dirname, extname } from 'path';
+import { codeFrameColumns } from '@babel/code-frame';
 import debug from 'debug';
 import * as chalk from 'chalk';
 import pkg from '../package.json';
-import type {Debugger} from 'debug';
-import type {File} from './transform';
+import type { Debugger } from 'debug';
+import type { File } from './transform';
 
 // Forces colors. Ideally I'd figure out a way to make colors work when
 // using execFile.
 const c = new chalk.Instance({
   enabled: true,
-  level: 3
+  level: 3,
 });
 
 function getPackageNameWithoutNamespace(): string {
@@ -32,11 +30,14 @@ export function createDebug(filename: string): Debugger {
 }
 
 type LogOptions = {
-  file?: File,
-  loc?: {start: {line: number, column: number}, end: {line: number, column: number}}
+  file?: File;
+  loc?: {
+    start: { line: number; column: number };
+    end: { line: number; column: number };
+  };
 };
 
-function createFrame({file, loc}: LogOptions = {}): string {
+function createFrame({ file, loc }: LogOptions = {}): string {
   if (!file) {
     return '';
   }
@@ -45,7 +46,10 @@ function createFrame({file, loc}: LogOptions = {}): string {
     loc.start.column++;
     loc.end.column++;
   }
-  const frame = codeFrameColumns(file.source, loc, {highlightCode: true, forceColor: true});
+  const frame = codeFrameColumns(file.source, loc, {
+    highlightCode: true,
+    forceColor: true,
+  });
   return `\nat ${file.path}:\n${frame}`;
 }
 

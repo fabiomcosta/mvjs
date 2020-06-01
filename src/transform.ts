@@ -1,31 +1,33 @@
-// @flow
-
-import {updateNodePath, isImportOrRequireNode} from './ast';
-import type {PathMap} from './options';
+import { updateNodePath, isImportOrRequireNode } from './ast';
+import type { PathMap } from './options';
 
 export type File = {
-  source: string,
-  path: string
+  source: string;
+  path: string;
 };
 
 export type ParsedOptions = {
-  expandedPaths: PathMap,
-  recastOptions?: Object
+  expandedPaths: PathMap;
+  recastOptions?: Object;
 };
 
 export type Context = {
-  options: ParsedOptions,
-  j: any,
-  file: File
+  options: ParsedOptions;
+  j: any;
+  file: File;
 };
 
 type Options = {
-  options: ParsedOptions,
+  options: ParsedOptions;
 };
 
-export default function transformer(file: any, api: any, options: Options) {
+export default function transformer(
+  file: any,
+  api: any,
+  options: Options
+): string {
   const j = api.jscodeshift;
-  const context = {j, file, options: options.options};
+  const context = { j, file, options: options.options };
   const transform = j(file.source);
 
   function applyUpdateNode(path) {
@@ -38,23 +40,19 @@ export default function transformer(file: any, api: any, options: Options) {
     importSourcePath.comments = path.value.source.comments;
     const importDeclaration = {
       ...path.value,
-      source: importSourcePath
+      source: importSourcePath,
     };
     j(path).replaceWith(importDeclaration);
   }
 
-  transform
-    .find(j.ImportDeclaration)
-    .forEach(applyUpdateNode);
+  transform.find(j.ImportDeclaration).forEach(applyUpdateNode);
 
-  transform
-    .find(j.ImportExpression)
-    .forEach(applyUpdateNode);
+  transform.find(j.ImportExpression).forEach(applyUpdateNode);
 
   transform
     .find(j.CallExpression)
-    .filter(p => isImportOrRequireNode(j, p.value))
-    .forEach(path => {
+    .filter((p) => isImportOrRequireNode(j, p.value))
+    .forEach((path) => {
       const [source, ...otherArguments] = path.value.arguments;
       const importSourcePath = updateNodePath(context, source);
       if (importSourcePath == null) {
@@ -65,7 +63,7 @@ export default function transformer(file: any, api: any, options: Options) {
       importSourcePath.comments = source.comments;
       const importDeclaration = {
         ...path.value,
-        arguments: [importSourcePath, ...otherArguments]
+        arguments: [importSourcePath, ...otherArguments],
       };
       j(path).replaceWith(importDeclaration);
     });

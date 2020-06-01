@@ -1,16 +1,15 @@
-// @flow
-
 import path from 'path';
 import fs from 'fs';
 import findUp from 'find-up';
-import {promisify} from 'util';
+import { promisify } from 'util';
 import ignore from 'ignore';
 import requireResolve from './requireResolve';
-import {createDebug, warn} from './log';
-import {JS_EXTENSIONS_DOTTED, type PathMap} from './options';
-import type {Context} from './transform';
+import { createDebug, warn } from './log';
+import { JS_EXTENSIONS_DOTTED } from './options';
+import type { PathMap } from './options';
+import type { Context } from './transform';
 
-const {hasOwnProperty} = Object.prototype;
+const { hasOwnProperty } = Object.prototype;
 const debug = createDebug(__filename);
 
 const readdir = promisify(fs.readdir);
@@ -68,8 +67,11 @@ export function matchPathStyle(_path: string, referencePath: string): string {
  * With this value we can check if the relative importSourcePath matches the
  * provided `sourcePath`.
  */
-function getAbsoluteImportSourcePath(context: Context, importSourcePath: string): string {
-  const {file} = context;
+function getAbsoluteImportSourcePath(
+  context: Context,
+  importSourcePath: string
+): string {
+  const { file } = context;
   const absolutePath = path.resolve(path.dirname(file.path), importSourcePath);
   if (pathHasJSExtension(file.path)) {
     // It only makes sense to use requireResolve on JS files
@@ -86,8 +88,12 @@ function getAbsoluteImportSourcePath(context: Context, importSourcePath: string)
  * referencePath: './folder/a'
  * -> '../b'
  */
-function generateRelativeNormalizedPath(sourcePath: string, targetPath: string, referencePath: string): string {
-  return  normalizePath(
+function generateRelativeNormalizedPath(
+  sourcePath: string,
+  targetPath: string,
+  referencePath: string
+): string {
+  return normalizePath(
     matchPathStyle(
       path.relative(path.dirname(sourcePath), targetPath),
       referencePath
@@ -100,13 +106,18 @@ function generateSourcePathForExternalModule(
   targetPath: string,
   importSourcePath: string
 ): string {
-
   // On file `./src/c.js`
   // When moving `a.js` to `b.js`
   // import x from '../a'; -> import x from '../b;
-  const targetImportSourcePath = generateRelativeNormalizedPath(sourcePath, targetPath, importSourcePath);
+  const targetImportSourcePath = generateRelativeNormalizedPath(
+    sourcePath,
+    targetPath,
+    importSourcePath
+  );
 
-  debug(`Updating ${sourcePath}: ${importSourcePath} -> ${targetImportSourcePath}`);
+  debug(
+    `Updating ${sourcePath}: ${importSourcePath} -> ${targetImportSourcePath}`
+  );
 
   return targetImportSourcePath;
 }
@@ -117,20 +128,27 @@ function generateSourcePathForMovedModule(
   importSourcePath: string,
   absoluteImportPath: string
 ): string {
-
   // On file `./c.js`
   // When moving `./c.js` to `./src/c.js`
   // import x from './a'; -> import x from '../a';
-  const targetImportSourcePath = generateRelativeNormalizedPath(targetPath, absoluteImportPath, importSourcePath);
+  const targetImportSourcePath = generateRelativeNormalizedPath(
+    targetPath,
+    absoluteImportPath,
+    importSourcePath
+  );
 
-  debug(`Updating ${sourcePath}: ${importSourcePath} -> ${targetImportSourcePath}`);
+  debug(
+    `Updating ${sourcePath}: ${importSourcePath} -> ${targetImportSourcePath}`
+  );
 
   return targetImportSourcePath;
 }
 
-export function updateSourcePath(context: Context, importSourcePath: string): string {
-
-  const {file} = context;
+export function updateSourcePath(
+  context: Context,
+  importSourcePath: string
+): string {
+  const { file } = context;
 
   // absolute paths...
   // They are generaly not used "as-is", but there is a babel plugin that
@@ -148,21 +166,35 @@ export function updateSourcePath(context: Context, importSourcePath: string): st
     return importSourcePath;
   }
 
-  const {options} = context;
-  const absoluteImportSourcePath = getAbsoluteImportSourcePath(context, importSourcePath);
+  const { options } = context;
+  const absoluteImportSourcePath = getAbsoluteImportSourcePath(
+    context,
+    importSourcePath
+  );
 
   // The current transformed file is being moved, we need to update its imports
   if (hasOwnProperty.call(options.expandedPaths, file.path)) {
     const currentFileTargetPath = options.expandedPaths[file.path];
-    const absoluteImportPath = options.expandedPaths[absoluteImportSourcePath] || absoluteImportSourcePath;
-    return generateSourcePathForMovedModule(file.path, currentFileTargetPath, importSourcePath, absoluteImportPath);
+    const absoluteImportPath =
+      options.expandedPaths[absoluteImportSourcePath] ||
+      absoluteImportSourcePath;
+    return generateSourcePathForMovedModule(
+      file.path,
+      currentFileTargetPath,
+      importSourcePath,
+      absoluteImportPath
+    );
   }
 
   // The import contains a path to a file that is being moved
   if (hasOwnProperty.call(options.expandedPaths, absoluteImportSourcePath)) {
     const currentFileTargetPath = options.expandedPaths[file.path] || file.path;
     const targetPath = options.expandedPaths[absoluteImportSourcePath];
-    return generateSourcePathForExternalModule(currentFileTargetPath, targetPath, importSourcePath);
+    return generateSourcePathForExternalModule(
+      currentFileTargetPath,
+      targetPath,
+      importSourcePath
+    );
   }
 
   return importSourcePath;
@@ -172,16 +204,21 @@ export async function findProjectPath(): Promise<string> {
   const projectPackageJson = await findUp('package.json');
   if (projectPackageJson == null) {
     const cwd = process.cwd();
-    warn(`Could not find a "package.json" file on any parent directory, using "${cwd}" as a fallback.`);
+    warn(
+      `Could not find a "package.json" file on any parent directory, using "${cwd}" as a fallback.`
+    );
     return cwd;
   }
   return path.dirname(projectPackageJson);
 }
 
-function splitByFilter(array: Array<string>, filterFn: (string) => boolean): [Array<string>, Array<string>] {
-  const truthyValues = [];
-  const falsyValues = [];
-  array.forEach(value => {
+function splitByFilter(
+  array: Array<string>,
+  filterFn: (a: string) => boolean
+): [Array<string>, Array<string>] {
+  const truthyValues: Array<string> = [];
+  const falsyValues: Array<string> = [];
+  array.forEach((value) => {
     const arr = filterFn(value) ? truthyValues : falsyValues;
     arr.push(value);
   });
@@ -199,7 +236,7 @@ function pathHasJSExtension(_path: string): boolean {
 const IGNORED_FOLDERS = new Set(['node_modules', '.git', '.hg']);
 
 type FindAllOptions = {
-  ignorePattern: $ReadOnlyArray<string>
+  ignorePattern: Array<string>;
 };
 
 // TODO: use `git ls-files` and `hg manifest` to consider ignored files.
@@ -215,30 +252,41 @@ function applyIgnoreFilter(paths, ignorePattern) {
   }
   const cwd = process.cwd();
   const ig = ignore().add(ignorePattern);
-  return paths.filter(absPath => !ig.ignores(path.relative(cwd, absPath)));
+  return paths.filter((absPath) => !ig.ignores(path.relative(cwd, absPath)));
 }
 
-export async function findAllPathsCategorized(rootPath: string, options: FindAllOptions): Promise<{ js: Array<string>, others: Array<string> }> {
+export async function findAllPathsCategorized(
+  rootPath: string,
+  options: FindAllOptions
+): Promise<{ js: Array<string>; others: Array<string> }> {
   const allPaths = await findAllPaths(rootPath);
   const filteredPaths = applyIgnoreFilter(allPaths, options.ignorePattern);
   const [js, others] = splitByFilter(filteredPaths, pathHasJSExtension);
-  return {js, others};
+  return { js, others };
 }
 
-async function findAllPaths(rootPath: string, supportedExtensions?: Set<string>): Promise<Array<string>> {
+async function findAllPaths(
+  rootPath: string,
+  supportedExtensions?: Set<string>
+): Promise<Array<string>> {
   const subFiles = await readdir(rootPath);
-  const files = await Promise.all(subFiles.map(async (subFile) => {
-    const res = path.join(rootPath, subFile);
-    if ((await stat(res)).isDirectory()) {
-      if (IGNORED_FOLDERS.has(subFile)) {
+  const files = await Promise.all(
+    subFiles.map(async (subFile) => {
+      const res = path.join(rootPath, subFile);
+      if ((await stat(res)).isDirectory()) {
+        if (IGNORED_FOLDERS.has(subFile)) {
+          return null;
+        }
+        return findAllPaths(res, supportedExtensions);
+      } else if (
+        supportedExtensions &&
+        !pathHasExtension(subFile, supportedExtensions)
+      ) {
         return null;
       }
-      return findAllPaths(res, supportedExtensions);
-    } else if (supportedExtensions && !pathHasExtension(subFile, supportedExtensions)) {
-      return null;
-    }
-    return res;
-  }));
+      return res;
+    })
+  );
   return files.filter(Boolean).reduce((a, f) => a.concat(f), []);
 }
 
@@ -256,14 +304,17 @@ async function findAllPaths(rootPath: string, supportedExtensions?: Set<string>)
  */
 export async function expandDirectoryPaths(pathMap: PathMap): Promise<PathMap> {
   return await Object.keys(pathMap)
-    .map(sourcePath => ({sourcePath, stat: stat(sourcePath)}))
-    .reduce(async (_acc, {sourcePath, stat}) => {
+    .map((sourcePath) => ({ sourcePath, stat: stat(sourcePath) }))
+    .reduce(async (_acc, { sourcePath, stat }) => {
       const acc = await _acc;
       if ((await stat).isDirectory()) {
         const allDescendants = await findAllPaths(sourcePath);
         const targetPath = pathMap[sourcePath];
-        allDescendants.forEach(descendant => {
-          acc[descendant] = path.join(targetPath, path.relative(sourcePath, descendant));
+        allDescendants.forEach((descendant) => {
+          acc[descendant] = path.join(
+            targetPath,
+            path.relative(sourcePath, descendant)
+          );
         });
       } else {
         acc[sourcePath] = pathMap[sourcePath];

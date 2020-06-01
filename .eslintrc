@@ -1,20 +1,14 @@
 {
   root: true,
-  extends: ["eslint:recommended", "plugin:jest/recommended", "plugin:flowtype/recommended"],
-  plugins: ["flowtype", "babel", "jest"],
+  extends: ["eslint:recommended", "plugin:jest/recommended", "plugin:@typescript-eslint/recommended"],
+  plugins: ["babel", "jest", "@typescript-eslint"],
   parser: "babel-eslint",
   env: {
     node: true,
     es6: true,
     "jest/globals": true
   },
-  settings: {
-    flowtype: {
-      onlyFilesWithFlowAnnotation: true
-    }
-  },
   rules: {
-  "flowtype/no-primitive-constructor-types": 2,
     "no-case-declarations": 0,
     "object-curly-spacing": 2
   }
