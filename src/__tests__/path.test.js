@@ -1,23 +1,27 @@
 // @flow
 
 import path from 'path';
-import {mockDescriptor, createFakeContext, createTemporaryFs} from './utils';
-import {findProjectPath, matchPathStyle, updateSourcePath, expandDirectoryPaths} from '../path';
+import { mockDescriptor, createFakeContext, createTemporaryFs } from './utils';
+import {
+  findProjectPath,
+  matchPathStyle,
+  updateSourcePath,
+  expandDirectoryPaths,
+} from '../path';
 
-mockDescriptor(process, 'cwd', {value: jest.fn()});
+mockDescriptor(process, 'cwd', { value: jest.fn() });
 
 jest.mock('../log', () => {
   const debug = jest.fn();
   return {
     warn: jest.fn(),
-    createDebug: () => debug
+    createDebug: () => debug,
   };
 });
 
 jest.mock('find-up', () => jest.fn());
 
 describe('findProjectPath', () => {
-
   test('returns the dirname of the parent folder with a package.json file', async () => {
     require('find-up').mockResolvedValue(`/a/b/c/package.json`);
     const projectPath = await findProjectPath();
@@ -37,7 +41,7 @@ describe('findProjectPath', () => {
     await findProjectPath();
     expect(require('../log').warn).toHaveBeenCalledWith(
       `Could not find a "package.json" file on any parent directory, ` +
-      `using "/cwd/value" as a fallback.`
+        `using "/cwd/value" as a fallback.`
     );
   });
 });
@@ -51,7 +55,6 @@ describe('matchPathStyle', () => {
   });
 });
 
-
 // fake implementation of require.resolve that just adds the `.js` extension
 jest.mock('../requireResolve', () => (context, _path) => {
   if (!require('path').extname(_path)) {
@@ -61,7 +64,6 @@ jest.mock('../requireResolve', () => (context, _path) => {
 });
 
 describe('updateSourcePath', () => {
-
   test('ignores non relative paths', () => {
     const context = createFakeContext();
     expect(updateSourcePath(context, 'lodash')).toBe('lodash');
@@ -74,9 +76,11 @@ describe('updateSourcePath', () => {
 
   test('debugs about the absolute path', () => {
     const debug = require('../log').createDebug('');
-    const context = createFakeContext({path: '/a/b.js'});
+    const context = createFakeContext({ path: '/a/b.js' });
     updateSourcePath(context, '/c/d');
-    expect(debug).toHaveBeenCalledWith(`Ignoring absolute path "/c/d" from "/a/b.js".`);
+    expect(debug).toHaveBeenCalledWith(
+      `Ignoring absolute path "/c/d" from "/a/b.js".`
+    );
   });
 
   test(`ignores unsupported extensions`, () => {
@@ -86,8 +90,8 @@ describe('updateSourcePath', () => {
 
   test(`ignores if the absolute import path does NOT match the absolute 'sourcePath'`, () => {
     const context = createFakeContext(
-      {path: '/a/b/c.js'},
-      {expandedPaths: {'/a/b/d.js': ''}}
+      { path: '/a/b/c.js' },
+      { expandedPaths: { '/a/b/d.js': '' } }
     );
     expect(updateSourcePath(context, './e.js')).toBe('./e.js');
   });
@@ -95,8 +99,8 @@ describe('updateSourcePath', () => {
   test(`updates the sourcePath`, () => {
     const debug = require('../log').createDebug('');
     const context = createFakeContext(
-      {path: '/a/b/c.js'},
-      {expandedPaths: {'/a/b/d.js': '/a/b/e.js'}}
+      { path: '/a/b/c.js' },
+      { expandedPaths: { '/a/b/d.js': '/a/b/e.js' } }
     );
     expect(updateSourcePath(context, './d')).toBe('./e');
     expect(debug).toHaveBeenCalledWith(`Updating /a/b/c.js: ./d -> ./e`);
@@ -105,22 +109,22 @@ describe('updateSourcePath', () => {
 
 describe('expandDirectoryPaths', () => {
   it('expands folder paths into descendant file paths', async () => {
-    const {cwd} = await createTemporaryFs({
+    const { cwd } = await createTemporaryFs({
       './foo.js': '',
       './foo/baz.js': '',
       './foo/bar/baz.js': '',
-      './foo/bar/baz.css': ''
+      './foo/bar/baz.css': '',
     });
     const join = path.join.bind(path, cwd);
     const pathMap = {
       [join('./foo.js')]: join('./fuu/buz/foo/foo.js'),
-      [join('./foo')]: join('./fuu/buz/foo')
+      [join('./foo')]: join('./fuu/buz/foo'),
     };
     expect(await expandDirectoryPaths(pathMap)).toEqual({
       [join('./foo.js')]: join('./fuu/buz/foo/foo.js'),
       [join('./foo/baz.js')]: join('./fuu/buz/foo/baz.js'),
       [join('./foo/bar/baz.js')]: join('./fuu/buz/foo/bar/baz.js'),
-      [join('./foo/bar/baz.css')]: join('./fuu/buz/foo/bar/baz.css')
+      [join('./foo/bar/baz.css')]: join('./fuu/buz/foo/bar/baz.css'),
     });
   });
 });

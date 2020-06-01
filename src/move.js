@@ -1,7 +1,12 @@
 // @flow
 
 import fs from 'fs-extra';
-import {validate, createMovePaths, type MoveOptions, type PathMap} from './options';
+import {
+  validate,
+  createMovePaths,
+  type MoveOptions,
+  type PathMap,
+} from './options';
 
 export async function move(options: MoveOptions): Promise<void> {
   const pathMap = await createMovePaths(await validate(options));
@@ -10,7 +15,8 @@ export async function move(options: MoveOptions): Promise<void> {
 
 export async function movePaths(pathMap: PathMap): Promise<void> {
   await Promise.all(
-    Object.entries(pathMap)
-      .map(([sourcePath, targetPath]) => fs.move(sourcePath, targetPath))
+    Object.entries(pathMap).map(([sourcePath, targetPath]) =>
+      fs.move(sourcePath, targetPath)
+    )
   );
 }

@@ -16,6 +16,7 @@
     "flow": "flow",
     "flow-typed": "flow-typed",
     "lint": "eslint --fix src/",
+    "format-all": "prettier --write ./src",
     "unit": "npm run build && jest",
     "prepublishOnly": "node -e 'require(`fs-extra`).removeSync(`lib/`)' && npm t",
     "build": "babel src/ -d lib/ --copy-files",
@@ -66,6 +67,7 @@
     "eslint-plugin-jest": "^23.9.0",
     "flow-bin": "^0.124.0",
     "flow-typed": "^3.1.0",
-    "jest": "^26.0.1"
+    "jest": "^26.0.1",
+    "prettier": "^2.0.5"
   }
 }
