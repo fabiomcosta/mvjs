@@ -23,7 +23,7 @@ type Options = {
   options: ParsedOptions,
 };
 
-export default function transformer(file: any, api: any, options: Options) {
+export default function transformer(file: any, api: any, options: Options): any {
   const j = api.jscodeshift;
   const context = { j, file, options: options.options };
   const transform = j(file.source);

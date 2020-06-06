@@ -10,5 +10,8 @@
 [options]
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
 suppress_comment=\\(.\\|\n\\)*\\$FlowIgnore
+well_formed_exports=true
+types_first=true
 
 [strict]
+
