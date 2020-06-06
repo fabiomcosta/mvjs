@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
 import yargs from 'yargs';
-import {executeTransform} from './runner';
-import {movePaths} from './move';
-import {validate, createMovePaths, DEFAULT} from './options';
-import {createDebug} from './log';
-import {expandDirectoryPaths} from './path';
+import { executeTransform } from './runner';
+import { movePaths } from './move';
+import { validate, createMovePaths, DEFAULT } from './options';
+import { createDebug } from './log';
+import { expandDirectoryPaths } from './path';
 
 const debug = createDebug(__filename);
 
-const {argv} = yargs
+const { argv } = yargs
   .wrap(Math.min(120, yargs.terminalWidth()))
   .usage(
     `$0 - moves a JavaScript module and updates all import references in the project.`
@@ -41,16 +41,18 @@ const {argv} = yargs
   .demandCommand(2)
   .help();
 
-process.on('unhandledRejection', (error?: Error | null | undefined) => {
-  const errStringRep = error
-    ? error.stack
-      ? error.stack
-      : error.message
+process.on('unhandledRejection', (e) => {
+  const errStringRep = e
+    ? e.stack
+      ? e.stack
+      : e.message
     : '<undefined-error>';
   process.stderr.write(errStringRep);
 });
 
-function toArray(obj: Array<string> | string | void | null): Array<string> {
+function toArray(
+  obj: Array<string> | string | void | null
+): ReadonlyArray<string> {
   if (obj == null) {
     return [];
   }
@@ -70,7 +72,7 @@ async function main() {
       targetPath,
     })
   );
-  const {parser, recast, ignorePattern} = argv;
+  const { parser, recast, ignorePattern } = argv;
   const transformOptions = {
     expandedPaths: await expandDirectoryPaths(movePathMap),
     ignorePattern: toArray(ignorePattern),

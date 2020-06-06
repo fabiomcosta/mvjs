@@ -1,10 +1,10 @@
 import path from 'path';
-import {createTemporaryFs, isFile} from './utils';
-import {move} from '../move';
+import { createTemporaryFs, isFile } from './utils';
+import { move } from '../move';
 
 describe('move', () => {
   test('moves sources with absolute paths', async () => {
-    const {cwd} = await createTemporaryFs({
+    const { cwd } = await createTemporaryFs({
       './foo.js': '',
       './bar.js': '',
       './baz/': '',
