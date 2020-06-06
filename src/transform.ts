@@ -1,5 +1,12 @@
-import { updateNodePath, isImportOrRequireNode } from './ast';
-import type { PathMap } from './options';
+import type {
+  FileInfo,
+  API,
+  JSCodeshift,
+  ASTPath,
+  ImportDeclaration,
+} from 'jscodeshift';
+import {updateNodePath, isImportOrRequireNode} from './ast';
+import type {PathMap} from './options';
 
 export type File = {
   source: string;
@@ -13,7 +20,7 @@ export type ParsedOptions = {
 
 export type Context = {
   options: ParsedOptions;
-  j: any;
+  j: JSCodeshift;
   file: File;
 };
 
@@ -22,15 +29,15 @@ type Options = {
 };
 
 export default function transformer(
-  file: any,
-  api: any,
+  file: FileInfo,
+  api: API,
   options: Options
 ): any {
   const j = api.jscodeshift;
-  const context = { j, file, options: options.options };
+  const context = {j, file, options: options.options};
   const transform = j(file.source);
 
-  function applyUpdateNode(path) {
+  function applyUpdateNode(path: ASTPath<ImportDeclaration>) {
     const importSourcePath = updateNodePath(context, path.value.source);
     if (importSourcePath == null) {
       return;
@@ -45,13 +52,16 @@ export default function transformer(
     j(path).replaceWith(importDeclaration);
   }
 
-  transform.find(j.ImportDeclaration).forEach(applyUpdateNode);
-
-  transform.find(j.ImportExpression).forEach(applyUpdateNode);
+  transform
+    .find<ImportDeclaration>(j.ImportDeclaration)
+    .forEach((p) => applyUpdateNode(p));
+  transform
+    .find<ImportDeclaration>(j.ImportExpression)
+    .forEach((p) => applyUpdateNode(p));
 
   transform
     .find(j.CallExpression)
-    .filter((p) => isImportOrRequireNode(j, p.value))
+    .filter((p) => isImportOrRequireNode(p.value))
     .forEach((path) => {
       const [source, ...otherArguments] = path.value.arguments;
       const importSourcePath = updateNodePath(context, source);

@@ -1,5 +1,7 @@
+// @ts-nocheck
+
 import path from 'path';
-import { mockDescriptor, createFakeContext, createTemporaryFs } from './utils';
+import {mockDescriptor, createFakeContext, createTemporaryFs} from './utils';
 import {
   findProjectPath,
   matchPathStyle,
@@ -7,7 +9,7 @@ import {
   expandDirectoryPaths,
 } from '../path';
 
-mockDescriptor(process, 'cwd', { value: jest.fn() });
+mockDescriptor(process, 'cwd', {value: jest.fn()});
 
 jest.mock('../log', () => {
   const debug = jest.fn();
@@ -74,7 +76,7 @@ describe('updateSourcePath', () => {
 
   test('debugs about the absolute path', () => {
     const debug = require('../log').createDebug('');
-    const context = createFakeContext({ path: '/a/b.js' });
+    const context = createFakeContext({path: '/a/b.js'});
     updateSourcePath(context, '/c/d');
     expect(debug).toHaveBeenCalledWith(
       `Ignoring absolute path "/c/d" from "/a/b.js".`
@@ -88,8 +90,8 @@ describe('updateSourcePath', () => {
 
   test(`ignores if the absolute import path does NOT match the absolute 'sourcePath'`, () => {
     const context = createFakeContext(
-      { path: '/a/b/c.js' },
-      { expandedPaths: { '/a/b/d.js': '' } }
+      {path: '/a/b/c.js'},
+      {expandedPaths: {'/a/b/d.js': ''}}
     );
     expect(updateSourcePath(context, './e.js')).toBe('./e.js');
   });
@@ -97,8 +99,8 @@ describe('updateSourcePath', () => {
   test(`updates the sourcePath`, () => {
     const debug = require('../log').createDebug('');
     const context = createFakeContext(
-      { path: '/a/b/c.js' },
-      { expandedPaths: { '/a/b/d.js': '/a/b/e.js' } }
+      {path: '/a/b/c.js'},
+      {expandedPaths: {'/a/b/d.js': '/a/b/e.js'}}
     );
     expect(updateSourcePath(context, './d')).toBe('./e');
     expect(debug).toHaveBeenCalledWith(`Updating /a/b/c.js: ./d -> ./e`);
@@ -107,7 +109,7 @@ describe('updateSourcePath', () => {
 
 describe('expandDirectoryPaths', () => {
   it('expands folder paths into descendant file paths', async () => {
-    const { cwd } = await createTemporaryFs({
+    const {cwd} = await createTemporaryFs({
       './foo.js': '',
       './foo/baz.js': '',
       './foo/bar/baz.js': '',

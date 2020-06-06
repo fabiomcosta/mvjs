@@ -1,15 +1,14 @@
-import { basename, dirname, extname } from 'path';
-import { codeFrameColumns } from '@babel/code-frame';
+import {basename, dirname, extname} from 'path';
+import {codeFrameColumns} from '@babel/code-frame';
 import debug from 'debug';
 import * as chalk from 'chalk';
 import pkg from '../package.json';
-import type { Debugger } from 'debug';
-import type { File } from './transform';
+import type {Debugger} from 'debug';
+import type {File} from './transform';
 
 // Forces colors. Ideally I'd figure out a way to make colors work when
 // using execFile.
 const c = new chalk.Instance({
-  enabled: true,
   level: 3,
 });
 
@@ -40,18 +39,16 @@ type LogOptions = {
       line: number;
       column: number;
     };
-  };
+  } | null;
 };
 
-function createFrame({ file, loc }: LogOptions = {}): string {
-  if (!file) {
+function createFrame({file, loc}: LogOptions = {}): string {
+  if (!file || !loc) {
     return '';
   }
   // The column location seems off by one, fixing that.
-  if (loc) {
-    loc.start.column++;
-    loc.end.column++;
-  }
+  loc.start.column++;
+  loc.end.column++;
   const frame = codeFrameColumns(file.source, loc, {
     highlightCode: true,
     forceColor: true,
@@ -59,12 +56,12 @@ function createFrame({ file, loc }: LogOptions = {}): string {
   return `\nat ${file.path}:\n${frame}`;
 }
 
-export function info(msg: string, options?: LogOptions): void {
+export function info(msg: string, options?: LogOptions) {
   // eslint-disable-next-line no-console
   console.info(`${c.cyan('INFO:')} ${msg}${createFrame(options)}`);
 }
 
-export function warn(msg: string, options?: LogOptions): void {
+export function warn(msg: string, options?: LogOptions) {
   // eslint-disable-next-line no-console
   console.warn(`${c.yellow('WARN:')} ${msg}${createFrame(options)}`);
 }

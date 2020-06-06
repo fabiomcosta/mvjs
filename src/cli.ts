@@ -41,18 +41,7 @@ const { argv } = yargs
   .demandCommand(2)
   .help();
 
-process.on('unhandledRejection', (e) => {
-  const errStringRep = e
-    ? e.stack
-      ? e.stack
-      : e.message
-    : '<undefined-error>';
-  process.stderr.write(errStringRep);
-});
-
-function toArray(
-  obj: Array<string> | string | void | null
-): ReadonlyArray<string> {
+function toArray<T>(obj: Array<T> | T | void | null): Array<T> {
   if (obj == null) {
     return [];
   }
@@ -61,7 +50,8 @@ function toArray(
 
 async function main() {
   const allNonOptionalArgs = argv._.slice();
-  const targetPath = allNonOptionalArgs.pop();
+  // TODO: Not ideal, functions using targetPath should support string | undefined
+  const targetPath = allNonOptionalArgs.pop() as string;
   const sourcePaths = allNonOptionalArgs;
   debug('sourcePaths', sourcePaths.join(' '));
   debug('targetPath', targetPath);
@@ -72,7 +62,8 @@ async function main() {
       targetPath,
     })
   );
-  const { parser, recast, ignorePattern } = argv;
+  const { parser, recast } = argv;
+  const ignorePattern = argv.ignorePattern as string;
   const transformOptions = {
     expandedPaths: await expandDirectoryPaths(movePathMap),
     ignorePattern: toArray(ignorePattern),
@@ -83,4 +74,9 @@ async function main() {
   await movePaths(movePathMap);
 }
 
-main();
+main()
+  .then(() => process.exit())
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

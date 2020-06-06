@@ -1,10 +1,12 @@
+// @ts-nocheck
+
 import path from 'path';
 import fs from 'fs';
 import child_process from 'child_process';
-import { promisify } from 'util';
-import { createTemporaryFs, isFile } from '../utils';
-import type { FsDefinition } from '../utils';
-import type { ChildProcess } from 'child_process';
+import {promisify} from 'util';
+import {createTemporaryFs, isFile} from '../utils';
+import type {FsDefinition} from '../utils';
+import type {ChildProcess} from 'child_process';
 
 const exec = promisify(child_process.exec);
 const readFile = promisify(fs.readFile);
@@ -22,8 +24,8 @@ async function _exec(
 ): Promise<ChildProcess> {
   const cliPath = path.join(PROJECT_ROOT, 'lib', 'cli.js');
   const cmd = `${cliPath} ${args.join(' ')}`;
-  const childProcess = await exec(cmd, { cwd });
-  const { stdout, stderr } = childProcess;
+  const childProcess = await exec(cmd, {cwd});
+  const {stdout, stderr} = childProcess;
   // eslint-disable-next-line no-console
   console.log(
     `EXEC ${cmd}\ncwd=${cwd}\nstdout:\n${stdout}\nstderr:\n${stderr}`
@@ -42,7 +44,7 @@ async function createTmpFs(
   definition: FsDefinition,
   callback: TmpFsCallback
 ): Promise<void> {
-  const { cwd } = await createTemporaryFs({
+  const {cwd} = await createTemporaryFs({
     ...definition,
     './package.json': '{}',
   });
@@ -61,7 +63,7 @@ describe('cli', () => {
         './a.js': '',
         './modules.js': `import './a.js'`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['--recast.quote="double"', './a.js', './b.js']);
         expect(await readFileString(path.join(cwd, './modules.js'))).toEqual(
           `import "./b.js"`
@@ -77,7 +79,7 @@ describe('cli', () => {
         './modules.js': `import './a.js'`,
         './modules.d.js': `import './a.js'`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec([
           '--ignore-pattern="*.d.js"',
           '--ignore-pattern="bogus"',
@@ -119,7 +121,7 @@ require(\`llo \${y} a \u0000\`);
 require(x);
 require(x + '1');`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./a.js', './b.js']);
         expect(await readFileString(path.join(cwd, './modules.js'))).toEqual(`
 // dependency or built-in
@@ -157,7 +159,7 @@ import _3 from './a';
 import './a';
 proxyquire('./a', {});`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./a.js', './b.js']);
         expect(await readFileString(path.join(cwd, './modules.js'))).toEqual(`
 import('./b');
@@ -177,7 +179,7 @@ proxyquire('./b', {});`);
         './folder/': '',
         './a.js': `import './a1';`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./a.js', './folder/b.js']);
         expect(await readFileString(path.join(cwd, './folder/b.js'))).toEqual(
           `import '../a1';`
@@ -194,7 +196,7 @@ proxyquire('./b', {});`);
         './folder/': '',
         './a.js': `import './other/a1'; import './b';`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./a.js', './other/a1.js', './folder/']);
         expect(await readFileString(path.join(cwd, './folder/a.js'))).toEqual(
           `import './a1'; import '../b';`
@@ -209,7 +211,7 @@ proxyquire('./b', {});`);
         './source/level/a1.js': `import '../a2';`,
         './source/a2.js': '',
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./source', './target/']);
         expect(
           await readFileString(path.join(cwd, './target/level/a1.js'))
@@ -224,7 +226,7 @@ proxyquire('./b', {});`);
         './a.someWeirdExtension': '',
         './modules.js': `import './a.someWeirdExtension';`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./a.someWeirdExtension', './a.otherExt']);
         expect(await readFileString(path.join(cwd, './modules.js'))).toEqual(
           `import './a.otherExt';`
@@ -239,7 +241,7 @@ proxyquire('./b', {});`);
         './source-folder/a.sass': '@import "../b.sass";',
         './b.sass': '',
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./source-folder/*', '.']);
         expect(await readFileString(path.join(cwd, './a.sass'))).toEqual(
           '@import "./b.sass";'
@@ -255,7 +257,7 @@ proxyquire('./b', {});`);
         './source-folder/b.sass': '@import "../c.sass";',
         './c.sass': '',
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./source-folder/*', '.']);
         expect(await readFileString(path.join(cwd, './a.sass'))).toEqual(
           '@import "./b.sass";'
@@ -275,7 +277,7 @@ proxyquire('./b', {});`);
         './source-folder/b.sass': '@import "../c.sass";',
         './c.sass': '',
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./source-folder/*', '.']);
         expect(await readFileString(path.join(cwd, './a.pdf'))).toEqual(
           '%PDF- @import "./b.sass";'
@@ -293,7 +295,7 @@ proxyquire('./b', {});`);
         './a.someWeirdExtension': `@import ' ./modles.js ';`,
         './modles.js': '',
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./modles.js', './m.js']);
         expect(
           await readFileString(path.join(cwd, './a.someWeirdExtension'))
@@ -308,7 +310,7 @@ proxyquire('./b', {});`);
         './mod/index.js': '',
         './modules.js': `import './mod';`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./mod', './mod2']);
         expect(await readFileString(path.join(cwd, './modules.js'))).toEqual(
           `import './mod2';`
@@ -323,7 +325,7 @@ proxyquire('./b', {});`);
         './mod/index.js': '',
         './modules.js': `import './mod/index';`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./mod', './mod2']);
         expect(await readFileString(path.join(cwd, './modules.js'))).toEqual(
           `import './mod2/index';`
@@ -338,7 +340,7 @@ proxyquire('./b', {});`);
         './a.jsx': '',
         './modules.jsx': `import './a.jsx';`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./a.jsx', './b.jsx']);
         expect(await readFileString(path.join(cwd, './modules.jsx'))).toEqual(
           `import './b.jsx';`
@@ -354,7 +356,7 @@ proxyquire('./b', {});`);
         './a.mjs': '',
         './modules.mjs': `import './a.mjs';`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./a.mjs', './b.mjs']);
         expect(await readFileString(path.join(cwd, './modules.mjs'))).toEqual(
           `import './b.mjs';`
@@ -370,7 +372,7 @@ proxyquire('./b', {});`);
         './a.tsx': '',
         './modules.ts': `import './a.tsx';`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./a.tsx', './b.tsx']);
         expect(await readFileString(path.join(cwd, './modules.ts'))).toEqual(
           `import './b.tsx';`
@@ -388,7 +390,7 @@ proxyquire('./b', {});`);
         './c/': '',
         './modules.js': `import './a.js'; import './b';`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         await exec(['./a.js', './b.js', './c']);
         expect(await readFileString(path.join(cwd, './modules.js'))).toEqual(
           `import './c/a.js'; import './c/b';`
@@ -406,7 +408,7 @@ proxyquire('./b', {});`);
         './a/b/bar.js': '',
         './modules.js': `import './a/foo.js'; import './a/b/bar.js';`,
       },
-      async ({ cwd, exec }) => {
+      async ({cwd, exec}) => {
         const join = path.join.bind(path, cwd);
         await exec(['./a', './c/d']);
         expect(await readFileString(join('./modules.js'))).toEqual(

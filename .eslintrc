@@ -9,7 +9,8 @@
     "jest/globals": true
   },
   rules: {
-    "no-case-declarations": 0,
-    "object-curly-spacing": 2
+    "no-case-declarations": "off",
+    "object-curly-spacing": "error",
+    "@typescript-eslint/ban-ts-comment": "off"
   }
 }

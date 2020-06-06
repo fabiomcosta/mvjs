@@ -1,7 +1,7 @@
 import resolve from 'enhanced-resolve';
-import type { Context } from './transform';
-import { warn } from './log';
-import { JS_EXTENSIONS_DOTTED } from './options';
+import type {Context} from './transform';
+import {warn} from './log';
+import {JS_EXTENSIONS_DOTTED} from './options';
 
 const enhancedResolve = resolve.create.sync({
   symlinks: false,
@@ -13,7 +13,7 @@ const enhancedResolve = resolve.create.sync({
  * a nice to understand error.
  */
 export default function requireResolve(
-  context: Context,
+  context: Pick<Context, 'file'>,
   _path: string
 ): string {
   try {

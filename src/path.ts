@@ -14,8 +14,12 @@ const debug = createDebug(__filename);
 
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
-export const readFile: any = promisify(fs.readFile);
-export const writeFile: any = promisify(fs.writeFile);
+export const readFile = promisify(fs.readFile);
+export const writeFile = promisify(fs.writeFile);
+
+function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+  return value != null;
+}
 
 /**
  * Makes sure a path always starts with `/` or `./`.
@@ -68,7 +72,7 @@ export function matchPathStyle(_path: string, referencePath: string): string {
  * provided `sourcePath`.
  */
 function getAbsoluteImportSourcePath(
-  context: Context,
+  context: Pick<Context, 'file'>,
   importSourcePath: string
 ): string {
   const { file } = context;
@@ -145,7 +149,7 @@ function generateSourcePathForMovedModule(
 }
 
 export function updateSourcePath(
-  context: Context,
+  context: Pick<Context, 'file' | 'options'>,
   importSourcePath: string
 ): string {
   const { file } = context;
@@ -216,8 +220,8 @@ function splitByFilter(
   array: Array<string>,
   filterFn: (a: string) => boolean
 ): [Array<string>, Array<string>] {
-  const truthyValues = [];
-  const falsyValues = [];
+  const truthyValues: Array<string> = [];
+  const falsyValues: Array<string> = [];
   array.forEach((value) => {
     const arr = filterFn(value) ? truthyValues : falsyValues;
     arr.push(value);
@@ -236,7 +240,7 @@ function pathHasJSExtension(_path: string): boolean {
 const IGNORED_FOLDERS = new Set(['node_modules', '.git', '.hg']);
 
 type FindAllOptions = {
-  ignorePattern: ReadonlyArray<string>;
+  ignorePattern: Array<string>;
 };
 
 // TODO: use `git ls-files` and `hg manifest` to consider ignored files.
@@ -246,7 +250,7 @@ export async function findAllJSPaths(rootPath: string): Promise<Array<string>> {
   return await findAllPaths(rootPath, JS_EXTENSIONS_DOTTED);
 }
 
-function applyIgnoreFilter(paths, ignorePattern) {
+function applyIgnoreFilter(paths: Array<string>, ignorePattern: Array<string>) {
   if (!ignorePattern.length) {
     return paths;
   }
@@ -290,7 +294,9 @@ async function findAllPaths(
       return res;
     })
   );
-  return files.filter(Boolean).reduce((a, f) => a.concat(f), []);
+  return files
+    .filter(notEmpty)
+    .reduce<Array<string>>((a, f) => a.concat(f), []);
 }
 
 /**
@@ -308,20 +314,23 @@ async function findAllPaths(
 export async function expandDirectoryPaths(pathMap: PathMap): Promise<PathMap> {
   return await Object.keys(pathMap)
     .map((sourcePath) => ({ sourcePath, stat: stat(sourcePath) }))
-    .reduce(async (_acc, { sourcePath, stat }) => {
-      const acc = await _acc;
-      if ((await stat).isDirectory()) {
-        const allDescendants = await findAllPaths(sourcePath);
-        const targetPath = pathMap[sourcePath];
-        allDescendants.forEach((descendant) => {
-          acc[descendant] = path.join(
-            targetPath,
-            path.relative(sourcePath, descendant)
-          );
-        });
-      } else {
-        acc[sourcePath] = pathMap[sourcePath];
-      }
-      return acc;
-    }, Promise.resolve({}));
+    .reduce<Promise<{ [k: string]: string }>>(
+      async (_acc, { sourcePath, stat }) => {
+        const acc = await _acc;
+        if ((await stat).isDirectory()) {
+          const allDescendants = await findAllPaths(sourcePath);
+          const targetPath = pathMap[sourcePath];
+          allDescendants.forEach((descendant) => {
+            acc[descendant] = path.join(
+              targetPath,
+              path.relative(sourcePath, descendant)
+            );
+          });
+        } else {
+          acc[sourcePath] = pathMap[sourcePath];
+        }
+        return acc;
+      },
+      Promise.resolve({})
+    );
 }

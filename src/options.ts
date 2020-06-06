@@ -1,7 +1,7 @@
 import fs from 'fs';
-import type { Stats } from 'fs';
+import type {Stats} from 'fs';
 import path from 'path';
-import { promisify } from 'util';
+import {promisify} from 'util';
 
 const fsStat = promisify(fs.stat);
 
@@ -16,7 +16,7 @@ export type PathMap = {
 
 export const DEFAULT = {
   parser: 'flow',
-  recast: { quote: 'single' },
+  recast: {quote: 'single'},
 };
 
 export const JS_EXTENSIONS: Set<string> = new Set([
@@ -34,8 +34,11 @@ export const JS_EXTENSIONS_DOTTED: Set<string> = new Set([
 ]);
 
 async function gracefulFsStat(
-  _path: string
+  _path: string | undefined | null
 ): Promise<Stats | undefined | null> {
+  if (_path == null) {
+    return null;
+  }
   try {
     return await fsStat(_path);
   } catch (error) {
@@ -48,13 +51,13 @@ async function gracefulFsStat(
 }
 
 async function validateSourcePaths(options: MoveOptions): Promise<void> {
-  const { sourcePaths } = options;
+  const {sourcePaths} = options;
 
   // All sourcePaths should exist and should be files
   await Promise.all(
     sourcePaths
-      .map((sourcePath) => ({ sourcePath, stat: gracefulFsStat(sourcePath) }))
-      .map(async ({ sourcePath, stat }) => {
+      .map((sourcePath) => ({sourcePath, stat: gracefulFsStat(sourcePath)}))
+      .map(async ({sourcePath, stat}) => {
         const sourceStat = await stat;
         if (!sourceStat) {
           throw new Error(`Source "${sourcePath}" doesn't exist.`);
@@ -64,7 +67,7 @@ async function validateSourcePaths(options: MoveOptions): Promise<void> {
 }
 
 async function validateTargetPath(options: MoveOptions): Promise<void> {
-  const { sourcePaths, targetPath } = options;
+  const {sourcePaths, targetPath} = options;
   const targetStat = await gracefulFsStat(targetPath);
   if (sourcePaths.length === 1) {
     // The targetPath should not exist
@@ -99,15 +102,15 @@ export async function validate(options: MoveOptions): Promise<MoveOptions> {
   return options;
 }
 
-export async function createMovePaths(options: MoveOptions): PathMap {
-  const { sourcePaths, targetPath } = options;
+export async function createMovePaths(options: MoveOptions): Promise<PathMap> {
+  const {sourcePaths, targetPath} = options;
   const resolvedTargetPath = path.resolve(targetPath);
   const targetStat = await gracefulFsStat(resolvedTargetPath);
   const getTargetPath: (a: string) => string =
     targetStat && targetStat.isDirectory()
       ? (sourcePath) => path.join(resolvedTargetPath, path.basename(sourcePath))
       : () => resolvedTargetPath;
-  return sourcePaths.reduce((acc, sourcePath) => {
+  return sourcePaths.reduce<{ [k: string]: string }>((acc, sourcePath) => {
     acc[path.resolve(sourcePath)] = getTargetPath(sourcePath);
     return acc;
   }, {});
