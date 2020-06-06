@@ -14,8 +14,8 @@ const debug = createDebug(__filename);
 
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
-export const readFile = promisify(fs.readFile);
-export const writeFile = promisify(fs.writeFile);
+export const readFile: any = promisify(fs.readFile);
+export const writeFile: any = promisify(fs.writeFile);
 
 /**
  * Makes sure a path always starts with `/` or `./`.
