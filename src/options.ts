@@ -1,5 +1,3 @@
-// @flow
-
 import fs from 'fs';
 import type { Stats } from 'fs';
 import path from 'path';
@@ -8,12 +6,12 @@ import { promisify } from 'util';
 const fsStat = promisify(fs.stat);
 
 export type MoveOptions = {
-  sourcePaths: Array<string>,
-  targetPath: string,
+  sourcePaths: Array<string>;
+  targetPath: string;
 };
 
 export type PathMap = {
-  [string]: string,
+  [x: string]: string;
 };
 
 export const DEFAULT = {
@@ -35,7 +33,9 @@ export const JS_EXTENSIONS_DOTTED: Set<string> = new Set([
   ...Array.from(JS_EXTENSIONS, (ext) => `.${ext}`),
 ]);
 
-async function gracefulFsStat(_path: string): Promise<?Stats> {
+async function gracefulFsStat(
+  _path: string
+): Promise<Stats | undefined | null> {
   try {
     return await fsStat(_path);
   } catch (error) {
@@ -103,7 +103,7 @@ export async function createMovePaths(options: MoveOptions): PathMap {
   const { sourcePaths, targetPath } = options;
   const resolvedTargetPath = path.resolve(targetPath);
   const targetStat = await gracefulFsStat(resolvedTargetPath);
-  const getTargetPath: (string) => string =
+  const getTargetPath: (a: string) => string =
     targetStat && targetStat.isDirectory()
       ? (sourcePath) => path.join(resolvedTargetPath, path.basename(sourcePath))
       : () => resolvedTargetPath;

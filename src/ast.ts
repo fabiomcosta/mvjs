@@ -1,5 +1,3 @@
-// @flow
-
 import { warn } from './log';
 import { updateSourcePath } from './path';
 import type { Context } from './transform';
@@ -13,7 +11,7 @@ import type {
 function updateTemplateLiteralPath(
   context: Context,
   templateLiteral: TemplateLiteral
-): ?TemplateLiteral {
+): TemplateLiteral | undefined | null {
   const { j, file } = context;
   if (templateLiteral.expressions.length || templateLiteral.quasis.length > 1) {
     return warn(
@@ -50,7 +48,7 @@ function updateLiteralPath(context: Context, literal: Literal): Literal {
 export function updateNodePath(
   context: Context,
   originalSourcePathNode: Node
-): ?Node {
+): Node | undefined | null {
   const { file } = context;
   switch (originalSourcePathNode.type) {
     case 'Literal':

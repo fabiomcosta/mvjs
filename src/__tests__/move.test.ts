@@ -1,5 +1,3 @@
-// @flow
-
 import path from 'path';
 import { createTemporaryFs, isFile } from './utils';
 import { move } from '../move';

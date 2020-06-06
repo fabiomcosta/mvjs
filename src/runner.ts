@@ -1,5 +1,3 @@
-// @flow
-
 import path from 'path';
 import { isBinaryFile } from 'isbinaryfile';
 import { createDebug, info } from './log';
@@ -11,14 +9,8 @@ import {
   writeFile,
   updateSourcePath,
 } from './path';
-import {
-  validate,
-  createMovePaths,
-  DEFAULT,
-  JS_EXTENSIONS,
-  type MoveOptions,
-  type PathMap,
-} from './options';
+import { validate, createMovePaths, DEFAULT, JS_EXTENSIONS } from './options';
+import type { MoveOptions, PathMap } from './options';
 import type { ParsedOptions } from './transform';
 import Runner from 'jscodeshift/src/Runner';
 
@@ -26,19 +18,21 @@ const debug = createDebug(__filename);
 
 type TransformOptions = {
   // see https://github.com/facebook/jscodeshift#parser
-  parser?: 'flow' | 'babylon' | 'babel',
+  parser?: 'flow' | 'babylon' | 'babel';
   // see https://github.com/benjamn/recast/blob/master/lib/options.ts
-  recastOptions?: any,
-  ignorePattern: $ReadOnlyArray<string>,
+  recastOptions?: any;
+  ignorePattern: ReadonlyArray<string>;
 };
 
 type NormalizedOptions = {
-  expandedPaths: PathMap,
+  expandedPaths: PathMap;
 } & TransformOptions;
 
 async function promiseObject(object: {
-  [string]: Promise<mixed> | mixed,
-}): Promise<{ [string]: mixed }> {
+  [x: string]: Promise<unknown> | unknown;
+}): Promise<{
+  [x: string]: unknown;
+}> {
   return await Promise.all(
     Object.entries(object).map((entry) => Promise.all(entry))
   ).then((entries) =>

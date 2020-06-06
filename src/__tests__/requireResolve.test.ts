@@ -1,5 +1,3 @@
-// @flow
-
 import path from 'path';
 import requireResolve from '../requireResolve';
 import { createFakeContext, createTemporaryFs } from './utils';

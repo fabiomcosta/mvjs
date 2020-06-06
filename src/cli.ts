@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-// @flow
-
 import yargs from 'yargs';
 import { executeTransform } from './runner';
 import { movePaths } from './move';
@@ -54,7 +52,7 @@ process.on('unhandledRejection', (e) => {
 
 function toArray(
   obj: Array<string> | string | void | null
-): $ReadOnlyArray<string> {
+): ReadonlyArray<string> {
   if (obj == null) {
     return [];
   }

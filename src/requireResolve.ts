@@ -1,5 +1,3 @@
-// @flow
-
 import resolve from 'enhanced-resolve';
 import type { Context } from './transform';
 import { warn } from './log';

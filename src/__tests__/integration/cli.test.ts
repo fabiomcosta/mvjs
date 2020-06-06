@@ -1,5 +1,3 @@
-// @flow
-
 import path from 'path';
 import fs from 'fs';
 import child_process from 'child_process';
@@ -34,10 +32,11 @@ async function _exec(
 }
 
 type TmpFsObject = {
-  cwd: string,
-  exec: (Array<string>) => Promise<ChildProcess>,
+  cwd: string;
+  exec: (a: Array<string>) => Promise<ChildProcess>;
 };
-type TmpFsCallback = (TmpFsObject) => mixed;
+
+type TmpFsCallback = (a: TmpFsObject) => unknown;
 
 async function createTmpFs(
   definition: FsDefinition,

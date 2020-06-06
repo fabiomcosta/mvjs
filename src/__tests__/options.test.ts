@@ -1,5 +1,3 @@
-// @flow
-
 import path from 'path';
 import { createMovePaths } from '../options';
 import { createTemporaryFs } from './utils';
@@ -8,8 +6,8 @@ async function createFsAndMovePaths({
   sourcePaths,
   targetPath,
 }: {
-  sourcePaths: $ReadOnlyArray<string>,
-  targetPath: string,
+  sourcePaths: ReadonlyArray<string>;
+  targetPath: string;
 }) {
   const { cwd } = await createTemporaryFs({
     [targetPath]: '',
