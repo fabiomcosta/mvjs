@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 import path from 'path';
 import requireResolve from '../requireResolve';
 import {createFakeContext, createTemporaryFs} from './utils';

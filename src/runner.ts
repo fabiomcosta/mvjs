@@ -22,7 +22,7 @@ type TransformOptions = {
   // TODO: make this a union type of 'flow' | 'babylon' | 'babel';
   parser?: string;
   // see https://github.com/benjamn/recast/blob/master/lib/options.ts
-  recastOptions?: any;
+  recastOptions?: { [k: string]: string };
   ignorePattern: Array<string>;
 };
 
@@ -34,7 +34,7 @@ type NormalizedOptions = {
 async function promiseObject(object: {
   [x: string]: Promise<unknown> | unknown;
 }): Promise<{
-  [x: string]: any;
+  [x: string]: unknown;
 }> {
   return await Promise.all(
     Object.entries(object).map((entry) => Promise.all(entry))

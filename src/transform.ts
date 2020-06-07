@@ -15,7 +15,7 @@ export type File = {
 
 export type ParsedOptions = {
   expandedPaths: PathMap;
-  recastOptions?: any;
+  recastOptions?: { [k: string]: string };
 };
 
 export type Context = {
@@ -32,7 +32,7 @@ export default function transformer(
   file: FileInfo,
   api: API,
   options: Options
-): any {
+): unknown {
   const j = api.jscodeshift;
   const context = {j, file, options: options.options};
   const transform = j(file.source);

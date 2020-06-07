@@ -8,8 +8,8 @@ async function createFsAndMovePaths({
   sourcePaths,
   targetPath,
 }: {
-  sourcePaths: ReadonlyArray<string>;
-  targetPath: string;
+  sourcePaths: ReadonlyArray<string>,
+  targetPath: string,
 }) {
   const {cwd} = await createTemporaryFs({
     [targetPath]: '',

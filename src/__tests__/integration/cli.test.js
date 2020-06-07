@@ -34,8 +34,8 @@ async function _exec(
 }
 
 type TmpFsObject = {
-  cwd: string;
-  exec: (a: Array<string>) => Promise<ChildProcess>;
+  cwd: string,
+  exec: (a: Array<string>) => Promise<ChildProcess>,
 };
 
 type TmpFsCallback = (a: TmpFsObject) => unknown;
