@@ -1,9 +1,10 @@
 {
   "name": "@fabiomcosta/mvjs",
-  "version": "1.15.2",
+  "version": "1.16.0",
   "description": "Easily move files and directories around your JavaScript project.",
   "repository": "https://github.com/fabiomcosta/mvjs",
   "main": "lib/index.js",
+  "types": "lib/src/index.d.ts",
   "bin": {
     "mvjs": "lib/cli.js"
   },
@@ -12,14 +13,16 @@
     "npm": ">=6.0.0"
   },
   "scripts": {
-    "test": "npm run lint && npm run flow && npm run unit",
-    "flow": "flow",
-    "flow-typed": "flow-typed",
-    "lint": "eslint --fix src/",
-    "format-all": "prettier --write ./src",
-    "unit": "npm run build && jest",
-    "prepublishOnly": "node -e 'require(`fs-extra`).removeSync(`lib/`)' && npm t",
-    "build": "babel src/ -d lib/ --copy-files",
+    "test": "npm run lint && npm run type-check && npm run unit",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch",
+    "lint": "prettier --write ./src && eslint --ext .js,.jsx,.ts,.tsx --fix src/",
+    "unit": "npm run build:js && jest",
+    "prepare": "node -e 'require(`fs-extra`).removeSync(`lib/`)' && npm run build",
+    "prepublishOnly": "npm t",
+    "build": "npm run build:types && npm run build:js",
+    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+    "build:types": "tsc --emitDeclarationOnly",
     "build:watch": "npm run build -- --watch"
   },
   "keywords": [
@@ -31,7 +34,7 @@
   "jest": {
     "testEnvironment": "node",
     "testMatch": [
-      "**/__tests__/**/(*.)(spec|test).js"
+      "**/__tests__/**/(*.)(spec|test).(js|jsx|ts|tsx)"
     ],
     "roots": [
       "<rootDir>/src/"
@@ -41,8 +44,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/code-frame": "^7.8.3",
-    "ast-types-flow": "0.0.7",
-    "chalk": "^3.0.0",
+    "chalk": "^4.0.0",
     "core-js": "^3.6.5",
     "debug": "^4.1.1",
     "enhanced-resolve": "^4.1.1",
@@ -55,19 +57,26 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.6",
-    "@babel/node": "^7.8.7",
-    "@babel/preset-env": "^7.9.6",
-    "@babel/preset-flow": "^7.9.0",
-    "babel-eslint": "^10.1.0",
+    "@babel/core": "^7.10.2",
+    "@babel/node": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
+    "@babel/preset-typescript": "^7.10.1",
+    "@types/babel__code-frame": "^7.0.1",
+    "@types/debug": "^4.1.5",
+    "@types/enhanced-resolve": "^3.0.6",
+    "@types/fs-extra": "^9.0.1",
+    "@types/jest": "^25.2.3",
+    "@types/jscodeshift": "^0.7.1",
+    "@types/yargs": "^15.0.5",
+    "@typescript-eslint/eslint-plugin": "^3.1.0",
+    "@typescript-eslint/parser": "^3.1.0",
     "babel-jest": "^26.0.1",
-    "eslint": "^6.8.0",
+    "eslint": "^7.2.0",
     "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-flowtype": "^4.7.0",
-    "eslint-plugin-jest": "^23.9.0",
-    "flow-bin": "^0.126.1",
-    "flow-typed": "^3.1.0",
+    "eslint-plugin-jest": "^23.13.2",
     "jest": "^26.0.1",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "ts-jest": "^26.1.0",
+    "typescript": "^3.9.5"
   }
 }

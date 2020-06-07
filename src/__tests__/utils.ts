@@ -1,21 +1,22 @@
-// @flow
+// @ts-nocheck
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any */
 
 import fs from 'fs';
 import fse from 'fs-extra';
 import os from 'os';
 import path from 'path';
-import { promisify } from 'util';
+import {promisify} from 'util';
 import pkg from '../../package.json';
-import type { Context, ParsedOptions } from '../transform';
+import type {Context, ParsedOptions} from '../transform';
 
 const mkdtemp = promisify(fs.mkdtemp);
 const writeFile = promisify(fs.writeFile);
 const fsStat = promisify(fs.stat);
 
 export function mockDescriptor(
-  obj: Object,
+  obj: any,
   propertyName: string,
-  descriptor: Object
+  descriptor: any
 ): void {
   let currentDescriptor;
   beforeEach(() => {
@@ -30,23 +31,24 @@ export function mockDescriptor(
 }
 
 export function createFakeContext(
-  file?: Object,
+  file?: any,
   options?: ParsedOptions
 ): Context {
   return {
     j: {},
-    file: { path: '', source: '', ...file },
-    options: { expandedPaths: {}, ...options },
+    file: {path: '', source: '', ...file},
+    options: {expandedPaths: {}, ...options},
   };
 }
 
 export type FsDefinition = {
-  [string]: string | Promise<string>,
-  ...
+  [x: string]: string | Promise<string>;
 };
+
 type FsDescriptor = {
-  cwd: string,
+  cwd: string;
 };
+
 export async function createTemporaryFs(
   definition: FsDefinition
 ): Promise<FsDescriptor> {
