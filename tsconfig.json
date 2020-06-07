@@ -3,13 +3,12 @@
     "target": "esnext",
     "moduleResolution": "node",
     "allowJs": true,
-    "noEmit": true,
     "strict": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationDir": "lib/"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src/**/*"]
 }
