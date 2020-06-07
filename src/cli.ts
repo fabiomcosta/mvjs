@@ -69,7 +69,7 @@ async function main() {
     expandedPaths: await expandDirectoryPaths(movePathMap),
     ignorePattern: toArray(ignorePattern),
     parser,
-    recastOptions
+    recastOptions,
   };
   await executeTransform(transformOptions);
   await movePaths(movePathMap);

@@ -31,20 +31,20 @@ type NormalizedOptions = {
 } & TransformOptions;
 
 // TODO: For sure this can be more type safe
-async function promiseObject(object: {
-  [x: string]: Promise<unknown> | unknown;
-}): Promise<{
-  [x: string]: unknown;
-}> {
-  return await Promise.all(
+async function promiseObject<T>(
+  object: {
+    [K in keyof T]: Promise<T[K]> | T[K];
+  }
+): Promise<T> {
+  const obj: any = await Promise.all(
     Object.entries(object).map((entry) => Promise.all(entry))
   ).then((entries) =>
-    entries.reduce<{ [x: string]: unknown }>((acc, entry) => {
-      const [k, v] = entry;
+    entries.reduce<any>((acc, [k, v]) => {
       acc[k] = v;
       return acc;
     }, {})
   );
+  return obj as Promise<T>;
 }
 
 async function genericTransform(
