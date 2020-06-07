@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
 import yargs from 'yargs';
-import { executeTransform } from './runner';
-import { movePaths } from './move';
-import { validate, createMovePaths, DEFAULT } from './options';
-import { createDebug } from './log';
-import { expandDirectoryPaths } from './path';
+import {executeTransform} from './runner';
+import {movePaths} from './move';
+import {validate, createMovePaths, DEFAULT} from './options';
+import {createDebug} from './log';
+import {expandDirectoryPaths} from './path';
 
 const debug = createDebug(__filename);
 
-const { argv } = yargs
+const {argv} = yargs
   .wrap(Math.min(120, yargs.terminalWidth()))
   .usage(
     `$0 - moves a JavaScript module and updates all import references in the project.`
@@ -62,7 +62,7 @@ async function main() {
       targetPath,
     })
   );
-  const { parser, recast } = argv;
+  const {parser, recast} = argv;
   const ignorePattern = argv.ignorePattern as string;
   const transformOptions = {
     expandedPaths: await expandDirectoryPaths(movePathMap),

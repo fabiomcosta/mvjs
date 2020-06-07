@@ -2,7 +2,7 @@
   root: true,
   extends: ["eslint:recommended", "plugin:jest/recommended", "plugin:@typescript-eslint/recommended"],
   plugins: ["babel", "jest", "@typescript-eslint"],
-  parser: "babel-eslint",
+  parser: '@typescript-eslint/parser',
   env: {
     node: true,
     es6: true,
