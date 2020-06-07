@@ -74,7 +74,6 @@ async function genericTransform(
         // Context object with a similar shape to the one provided by the jscodeshift
         // transform. It contains the values that are actually used by `updateSourcePath`.
         const context = {
-          j: null,
           file: {path: _path, source: ''},
           options,
         };

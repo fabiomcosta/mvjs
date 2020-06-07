@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+// @ts-nocheck
 
 import path from 'path';
 import {mockDescriptor, createFakeContext, createTemporaryFs} from './utils';

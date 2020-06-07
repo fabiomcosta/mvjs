@@ -41,7 +41,7 @@ const {argv} = yargs
   .demandCommand(2)
   .help();
 
-function toArray<T>(obj: Array<T> | T | void | null): Array<T> {
+function toArray<T>(obj: Array<T> | T | undefined | null): Array<T> {
   if (obj == null) {
     return [];
   }
@@ -62,13 +62,14 @@ async function main() {
       targetPath,
     })
   );
-  const {parser, recast} = argv;
-  const ignorePattern = argv.ignorePattern as string;
+  const {parser} = argv;
+  const ignorePattern = argv.ignorePattern as string | undefined;
+  const recastOptions = argv.recast as { [k: string]: string } | undefined;
   const transformOptions = {
     expandedPaths: await expandDirectoryPaths(movePathMap),
     ignorePattern: toArray(ignorePattern),
-    parser: parser,
-    recastOptions: recast,
+    parser,
+    recastOptions
   };
   await executeTransform(transformOptions);
   await movePaths(movePathMap);
