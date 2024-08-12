@@ -19,13 +19,13 @@ other modules inside your project.
 `mvjs` moves the module and also updates all its references on the other modules
 making the task of moving modules much simpler, similarly to using `mv`.
 
-It does this by running a codemod on all JavaScript modules inside the project
+It does so by running a codemod on all JavaScript modules inside the project
 (with the help of `jscodeshift`) and smartly updating `import` declarations and
 `require` calls.
 
 For non-js module files, a regular expression runs on their content, replacing
 any string that looks like a path and matches any of the moved files will be
-properly replaced. This gives extra piece of mind when moving `.scss` and other
+properly replaced, giving extra peace of mind - as it were - when moving `.scss` and other
 file extensions that can potentially import one of the moved files.
 
 ## Features
